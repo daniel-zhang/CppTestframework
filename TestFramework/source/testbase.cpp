@@ -1,8 +1,10 @@
 #include "testbase.h"
 
-TestBase::TestBase():mAlias("default_test"), mTouched(false)
+TestBase::TestBase()
 {
-
+	mMute = true;
+	mAlias = "default_test";
+	mTouched = false;
 }
 
 TestBase::~TestBase()
@@ -10,7 +12,7 @@ TestBase::~TestBase()
 
 }
 
-void TestBase::doAssertion( bool expr, string exprString, string srcFile, unsigned int lineNum, bool mute )
+void TestBase::doAssertion( bool expr, string exprString, string srcFile, unsigned int lineNum )
 {
 	TestAssertion* asst = new TestAssertion();
 	asst->mStatus = expr;
@@ -20,18 +22,32 @@ void TestBase::doAssertion( bool expr, string exprString, string srcFile, unsign
 	mAssertions.push_back(asst);
 	if (!asst->mStatus)
 	{
-		cout<<mAlias<<"::Assertion \""<<exprString<<"\" FAILED"<<endl;
-		cout<<"@Src:<"<<srcFile<<">"<<" Line<"<<lineNum<<">"<<endl<<endl;
+		setConsoleColor(FOREGROUND_GREEN|FOREGROUND_RED);
+		cout<<"Assertion:\"";
+		cout<<exprString;
+		cout<<"\"";
+		
+		setConsoleColor(FOREGROUND_RED);
+		cout<<"FAILED"<<endl;
+		setConsoleDefaultColor();
+
+		cout<<"@Src:<"<<srcFile<<">"<<" Line<"<<lineNum<<">"<<endl;
 	}
-	else if (asst->mStatus && !mute)
+	else if (asst->mStatus && !mMute)
 	{
-		cout<<mAlias<<"::Assertion \""<<exprString<<"\" PASSED"<<endl<<endl;
+		setConsoleColor(FOREGROUND_GREEN|FOREGROUND_RED);
+		cout<<"Assertion:\"";
+		cout<<exprString;
+		cout<<"\"";
+		setConsoleColor(FOREGROUND_GREEN);
+		cout<<" PASSED"<<endl;
+		setConsoleDefaultColor();
 	}
 }
 
 bool TestBase::isPassed()
 {
-	if (mAssertions.empty())
+	if (!isTouched())
 		return false;
 
 	bool passed = true;
@@ -49,3 +65,22 @@ bool TestBase::isTouched()
 	return mTouched;
 }
 
+void TestBase::setMute( bool m )
+{
+	mMute = m;
+}
+
+
+BOOL setConsoleColor( WORD attributes )
+{
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (hConsole == INVALID_HANDLE_VALUE)
+		return FALSE;
+	
+	return SetConsoleTextAttribute(hConsole, attributes);
+}
+
+BOOL setConsoleDefaultColor()
+{
+	return setConsoleColor(FOREGROUND_GREEN|FOREGROUND_RED|FOREGROUND_BLUE);
+}

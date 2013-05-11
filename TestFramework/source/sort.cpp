@@ -7,7 +7,7 @@ using namespace std;
 
 TestSort::TestSort():mArraySize(20000),mRandStart(0),mRandEnd(30000)
 {
-	mAlias = "Sorting Algos";
+	mAlias = "Sorting Comparison";
 	mPtrArray = new int[mArraySize];
 	LARGE_INTEGER tmp;
 	QueryPerformanceFrequency(&tmp);
@@ -36,8 +36,10 @@ void TestSort::showArray()
 	cout<<"\"\n\n";
 }
 
+//TODO: make sure the sorted array does not damage its items
 bool TestSort::checkArray()
 {
+	//Check if the array is ascendant
 	if (mArraySize == 1)
 		return true;
 
@@ -65,53 +67,38 @@ void TestSort::timerStop()
 	cout<<(cur-mPerfValue)*1000/mFreq<<" ms";
 }
 
-void TestSort::run( bool mute )
+#define Run_Test(sort)\
+	cout<<#sort<<": ";\
+	timerGo(); \
+	cost = sort(mPtrArray, mArraySize); \
+	timerStop();\
+	cout<<" Cost: "<<cost<<endl;\
+	__assert__(checkArray());\
+	randArray();
+
+void TestSort::run()
 {
 	randArray();
 	cout<<"Raw Array["<<mArraySize<<"]:\n";
-
 	unsigned int cost = 0;
-	cout<<"quickSort: ";
-	timerGo();
-	quickSort(mPtrArray, 0, mArraySize-1, &cost);
-	timerStop();
-	cout<<" Cost: "<<cost<<endl<<endl;
-	__assert__(checkArray());
+
+	Run_Test(quickSort);
+	Run_Test(mergeSort);
+
+	Run_Test(insertSort);
+
+	Run_Test(bubbleSort);
+	Run_Test(selectSort);
 	
-	randArray();
-	cout<<"bubbleSort: ";
-	timerGo();
-	cost = bubbleSort(mPtrArray, mArraySize);
-	timerStop();
-	cout<<" Cost: "<<cost<<endl<<endl;
-	__assert__(checkArray());
-
-	randArray();
-	cout<<"insertSort: ";
-	timerGo();
-	cost = insertSort(mPtrArray, mArraySize);
-	timerStop();
-	cout<<" Cost: "<<cost<<endl<<endl;
-	__assert__(checkArray());
-
-	randArray();
-	cout<<"selectSort: ";
-	timerGo();
-	cost = selectSort(mPtrArray, mArraySize);
-	timerStop();
-	cout<<" Cost: "<<cost<<endl<<endl;
-	__assert__(checkArray());
-
-	randArray();
-	cout<<"mergeSort: ";
-	timerGo();
-	cost = mergeSort(mPtrArray, mArraySize);
-	timerStop();
-	cout<<" Cost: "<<cost<<endl<<endl;
-	__assert__(checkArray());
+}
+unsigned int TestSort::quickSort( int* array, int arraySize )
+{
+	unsigned int cost = 0;
+	_quickSort(mPtrArray, 0, mArraySize-1, &cost);
+	return cost;
 }
 
-void TestSort::quickSort( int* array, int start, int end, unsigned int* cost )
+void TestSort::_quickSort( int* array, int start, int end, unsigned int* cost )
 {
 	if (start >= end) 
 		return;
@@ -137,8 +124,8 @@ void TestSort::quickSort( int* array, int start, int end, unsigned int* cost )
 	}  
 	array[right] = val;  
 	(*cost)++;
-	quickSort(array, start, left-1, cost);   
-	quickSort(array, left + 1, end, cost); 
+	_quickSort(array, start, left-1, cost);   
+	_quickSort(array, left + 1, end, cost); 
 	return;
 }
 
@@ -162,20 +149,18 @@ unsigned int TestSort::bubbleSort( int* array, int arraySize )
 unsigned int TestSort::insertSort( int* array, int arraySize )
 {
 	unsigned int costCounter = 0;
-	//sorted: 0 - (i-1)
-	//unsorted: i - n
+	//sorted range: 0 ... (i-1)
+	//unsorted range: i ... n
 	int i, j, k;
 	for (i = 1; i < arraySize; ++i)
 	{
 		for( j = i-1; j >=0; --j)
 		{
-			//i应该插入在j+1的位置
 			if (array[i] > array[j])
 				break;
 		}
 		if (j < i -1)
 		{
-			//将j+1到i-1之间的item右移1位，再拿出i，放入j+1的位置
 			int tmp = array[i];
 			for (k = i - 1; k > j; --k)
 			{
@@ -191,7 +176,6 @@ unsigned int TestSort::insertSort( int* array, int arraySize )
 
 unsigned int TestSort::selectSort( int* array, int arraySize )
 {
-	//0..i, i+1...end(i:0...end)
 	unsigned int costCounter = 0;
 	int i, j;
 	for (i = 0; i < arraySize; ++i)
@@ -270,6 +254,7 @@ void TestSort::divide( int* array, int left, int right, int* tmp, unsigned int* 
 		merge(array, left, mid, right, tmp, cost);
 	}
 }
+
 
 
 

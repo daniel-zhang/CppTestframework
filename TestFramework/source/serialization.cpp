@@ -6,7 +6,7 @@ TestSerialization::TestSerialization()
 	mAlias = "TestBinSerialization";
 }
 
-void TestSerialization::run( bool mute )
+void TestSerialization::run()
 {
 	string path = "./data";
 	ofstream outFile;

@@ -10,7 +10,7 @@ public:
 		mAlias = "TestReflection";
 	}
 
-	virtual void run(bool mute)
+	virtual void run()
 	{
 		__assert__(1);
 	}

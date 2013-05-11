@@ -9,7 +9,7 @@ public:
 	TestSearch(){}
 	~TestSearch(){}
 
-	virtual void run(bool mute){}
+	virtual void run(){}
 
 protected:
 

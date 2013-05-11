@@ -52,10 +52,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)/$(ProjectName)/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(LUA_DEV)/include;$(SolutionDir)/$(ProjectName)/include/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(LUA_DEV)/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>lua51.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -64,15 +66,18 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)/$(ProjectName)/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(LUA_DEV)/include;$(SolutionDir)/$(ProjectName)/include/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(LUA_DEV)/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>lua51.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\luabinding.h" />
     <ClInclude Include="include\memoverride.h" />
     <ClInclude Include="include\reflect.h" />
     <ClInclude Include="include\search.h" />
@@ -83,6 +88,7 @@
     <ClInclude Include="include\testreflect.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\luabinding.cpp" />
     <ClCompile Include="source\memoverride.cpp" />
     <ClCompile Include="source\reflect.cpp" />
     <ClCompile Include="source\search.cpp" />

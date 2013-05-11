@@ -16,11 +16,10 @@ public:
 	~TestFramework();
 
 	template<typename T>
-	void addTest()
+	void addTest(bool mute = true)
 	{
-		//Check T
 		TestBase* p = new T;
-
+		p->setMute(mute);
 		mTestRegistry.push_back(p);
 	}
 
@@ -28,10 +27,7 @@ public:
 	void setMute();
 	
 private:
-	void touch(bool& isTouched);
+	void touch(TestBase* testCase);
 	void evaluate();
-
-	bool mMute;
-	
 	vector<TestBase*> mTestRegistry;
 };

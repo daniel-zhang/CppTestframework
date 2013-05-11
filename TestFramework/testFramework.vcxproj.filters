@@ -20,6 +20,9 @@
     <Filter Include="search">
       <UniqueIdentifier>{0f698c95-a53f-4c11-93a5-64e3db17b9f4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="luabinding">
+      <UniqueIdentifier>{a610c9f7-ef3c-4ed2-8575-72b4ebddec1a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\sort.h">
@@ -45,6 +48,9 @@
     </ClInclude>
     <ClInclude Include="include\testbase.h">
       <Filter>testframework</Filter>
+    </ClInclude>
+    <ClInclude Include="include\luabinding.h">
+      <Filter>luabinding</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -73,5 +79,8 @@
       <Filter>testframework</Filter>
     </ClCompile>
     <ClCompile Include="source\testmain.cpp" />
+    <ClCompile Include="source\luabinding.cpp">
+      <Filter>luabinding</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

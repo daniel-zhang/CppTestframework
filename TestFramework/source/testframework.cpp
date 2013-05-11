@@ -2,7 +2,7 @@
 #include "testframework.h"
 
 
-TestFramework::TestFramework():mMute(true)
+TestFramework::TestFramework()
 {
 
 }
@@ -15,14 +15,19 @@ TestFramework::~TestFramework()
 void TestFramework::startAll()
 {
 	evaluate();
-
 	vector<TestBase*>::const_iterator iter;
 	for (iter = mTestRegistry.begin(); iter != mTestRegistry.end(); ++iter)
 	{
-		cout<<"--"<<(*iter)->mAlias<<": BEGIN--"<<endl<<endl;
-		(*iter)->run(mMute);
+		setConsoleColor(FOREGROUND_BLUE|FOREGROUND_GREEN);
+		cout<<"--"<<(*iter)->mAlias<<": BEGIN--"<<endl;
+		setConsoleDefaultColor();
+
+		(*iter)->run();
+		this->touch((*iter));
+
+		setConsoleColor(FOREGROUND_BLUE|FOREGROUND_GREEN);
 		cout<<"--"<<(*iter)->mAlias<<": END--"<<endl<<endl;
-		this->touch((*iter)->mTouched);
+		setConsoleDefaultColor();
 	}
 	evaluate();
 }
@@ -41,19 +46,27 @@ void TestFramework::evaluate()
 		if ((*iter)->isTouched())
 			++touched;
 	}
-
+	setConsoleColor(FOREGROUND_GREEN);
 	cout<<"Total("<<total<<") ";
 	cout<<"Touched("<<touched<<") ";
-	cout<<"Passed("<<passed<<")"<<endl<<endl;
+	cout<<"PASSED("<<passed<<") ";
+
+	if(touched - passed)
+	{
+		setConsoleColor(FOREGROUND_RED|FOREGROUND_INTENSITY);
+		cout<<"FAILED("<<touched - passed<<")"<<endl<<endl;
+		setConsoleDefaultColor();
+	}
+	else
+	{
+		cout<<endl<<endl;
+		setConsoleDefaultColor();
+	}
 }
 
-void TestFramework::touch( bool& isTouched )
+void TestFramework::touch( TestBase* testCase )
 {
-	isTouched = true;
+	testCase->mTouched = true;
 }
 
-void TestFramework::setMute()
-{
-	mMute = true;
-}
 

@@ -27,7 +27,7 @@ public:
 	TestSerialization();
 
 	//二进制序列化，测试std::string深拷贝(copy on write)
-	virtual void run(bool mute);
+	virtual void run();
 };
 
 
