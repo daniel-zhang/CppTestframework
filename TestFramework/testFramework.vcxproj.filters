@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="testframework">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="mallocOverride">
+      <UniqueIdentifier>{dcdd58fb-03cf-470f-a2d4-5b4672b0283f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="reflection">
+      <UniqueIdentifier>{f8a630fb-2171-4e92-bd82-64ea12ad2421}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sorting">
+      <UniqueIdentifier>{fd4fec12-827d-4720-bd74-a6044636ca2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="serialization">
+      <UniqueIdentifier>{ceb41afd-1a33-4a32-b031-feaf38e5636f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="search">
+      <UniqueIdentifier>{0f698c95-a53f-4c11-93a5-64e3db17b9f4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\sort.h">
+      <Filter>sorting</Filter>
+    </ClInclude>
+    <ClInclude Include="include\serialization.h">
+      <Filter>serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="include\search.h">
+      <Filter>search</Filter>
+    </ClInclude>
+    <ClInclude Include="include\testreflect.h">
+      <Filter>reflection</Filter>
+    </ClInclude>
+    <ClInclude Include="include\reflect.h">
+      <Filter>reflection</Filter>
+    </ClInclude>
+    <ClInclude Include="include\memoverride.h">
+      <Filter>mallocOverride</Filter>
+    </ClInclude>
+    <ClInclude Include="include\testframework.h">
+      <Filter>testframework</Filter>
+    </ClInclude>
+    <ClInclude Include="include\testbase.h">
+      <Filter>testframework</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\sort.cpp">
+      <Filter>sorting</Filter>
+    </ClCompile>
+    <ClCompile Include="source\serialization.cpp">
+      <Filter>serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="source\search.cpp">
+      <Filter>search</Filter>
+    </ClCompile>
+    <ClCompile Include="source\testreflect.cpp">
+      <Filter>reflection</Filter>
+    </ClCompile>
+    <ClCompile Include="source\reflect.cpp">
+      <Filter>reflection</Filter>
+    </ClCompile>
+    <ClCompile Include="source\memoverride.cpp">
+      <Filter>mallocOverride</Filter>
+    </ClCompile>
+    <ClCompile Include="source\testframework.cpp">
+      <Filter>testframework</Filter>
+    </ClCompile>
+    <ClCompile Include="source\testbase.cpp">
+      <Filter>testframework</Filter>
+    </ClCompile>
+    <ClCompile Include="source\testmain.cpp" />
+  </ItemGroup>
+</Project>
