@@ -30,8 +30,11 @@ protected:
 	void initLua();
 	void shutLua();
 
-	void execLuaScript();
-	void callLuaFunction();
+	void stackDump(lua_State* L);
+	
+	void startLuaShell();
+
+	void testLuaStack();
 
 	lua_State* mLuaState;
 };
