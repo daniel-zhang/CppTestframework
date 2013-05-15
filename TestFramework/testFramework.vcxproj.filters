@@ -20,10 +20,10 @@
     <Filter Include="search">
       <UniqueIdentifier>{0f698c95-a53f-4c11-93a5-64e3db17b9f4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="luabinding">
+    <Filter Include="plotter">
       <UniqueIdentifier>{a610c9f7-ef3c-4ed2-8575-72b4ebddec1a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="LuaScripts">
+    <Filter Include="plotter\LuaScripts">
       <UniqueIdentifier>{5ed9e4ca-008f-4d37-b532-4c188833077d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -52,8 +52,8 @@
     <ClInclude Include="include\testbase.h">
       <Filter>testframework</Filter>
     </ClInclude>
-    <ClInclude Include="include\luabinding.h">
-      <Filter>luabinding</Filter>
+    <ClInclude Include="include\luaplotter.h">
+      <Filter>plotter</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -82,19 +82,13 @@
       <Filter>testframework</Filter>
     </ClCompile>
     <ClCompile Include="source\testmain.cpp" />
-    <ClCompile Include="source\luabinding.cpp">
-      <Filter>luabinding</Filter>
+    <ClCompile Include="source\luaplotter.cpp">
+      <Filter>plotter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="lua\test.lua">
-      <Filter>LuaScripts</Filter>
-    </None>
-    <None Include="lua\functest.lua">
-      <Filter>LuaScripts</Filter>
-    </None>
-    <None Include="lua\plot.wlua">
-      <Filter>LuaScripts</Filter>
+    <None Include="lua\plot.lua">
+      <Filter>plotter\LuaScripts</Filter>
     </None>
   </ItemGroup>
 </Project>

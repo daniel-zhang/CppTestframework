@@ -1,12 +1,12 @@
 #include "sort.h"
-#include "luabinding.h"//to use lua plotter
+#include "luaplotter.h"//to use lua plotter
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <iostream>
 using namespace std;
 
-TestSort::TestSort():mMaxArraySize(20000),mRandStart(0),mRandEnd(30000)
+TestSort::TestSort():mMaxArraySize(3000),mRandStart(0),mRandEnd(30000)
 {
 	mAlias = "Sorting Comparison";
 	mPtrArray = new int[mMaxArraySize];
@@ -69,89 +69,78 @@ double TestSort::timerStop()
 	QueryPerformanceCounter(&v);
 	__int64 cur = v.QuadPart;
 
-	return (cur-mPerfValue)*1000/mFreq;
+	return (cur-mPerfValue)*1000.f/mFreq;
 }
-
-// #define Run_Test(sort)\
-// 	cout<<#sort<<": ";\
-// 	timerGo(); \
-// 	cost = sort(mPtrArray, mMaxArraySize); \
-// 	timerStop();\
-// 	cout<<" Cost: "<<cost<<endl;\
-// 	__assert__(checkArray());\
-// 	randArray();
 
 void TestSort::run()
 {
 	//Init  plotter
 	//LUA plotter
-	LuaPlotter* plotter = new LuaPlotter();
-	plotter->initLuaEnv("../lua/plot.lua");
+	LuaPlotter* plotter = new LuaPlotter("Simple Profiler");
+	
+	Plot* stepCmp = plotter->createPlot("Array size", "Steps", "Steps Comparison");
+	Dataset* qsortStepData = stepCmp->createDataset("Quick Sort");
+	Dataset* mergeStepData = stepCmp->createDataset("Merge Sort");
+	Dataset* insertStepData = stepCmp->createDataset("Insert Sort");
+	Dataset* bubbleStepData = stepCmp->createDataset("Bubble Sort");
 
-	//Generate Test Data
-	int step = 500;
+	Plot* timeCmp = plotter->createPlot("Array Size", "CPU Time(ms)", "Time Comparison");
+	Dataset* qsortTimeData = timeCmp->createDataset("Quick Sort");
+	Dataset* mergeTimeData = timeCmp->createDataset("Merge Sort");
+	Dataset* insertTimeData = timeCmp->createDataset("Insert Sort");
+	Dataset* bubbleTimeData = timeCmp->createDataset("Bubble Sort");
+
+	//Generate test data
+	int step = 100;
 	int times = mMaxArraySize/step;
-
-	double *qsortStep = new double[times];
-	double *qsortTime = new double[times];
-	double *nsortStep = new double[times];
-	double *nsortTime = new double[times];
-	double *xValues = new double[times];
 
 	for (int i = 0; i <times; ++i)
 	{
 		int currentArraySize = step*(i);
+		double runtime = 0;
+		int steps = 0;
 		
-		xValues[i] = currentArraySize;
-
 		randArray(currentArraySize);
 		timerGo();
-		qsortStep[i] =  quickSort(mPtrArray, currentArraySize);
-		qsortTime[i] = timerStop();
+		steps =  quickSort(mPtrArray, currentArraySize);
+		runtime = timerStop();
+		qsortStepData->addData(currentArraySize, steps);
+		qsortTimeData->addData(currentArraySize, runtime);
 		__assert__(checkArray(currentArraySize));
 
 		randArray(currentArraySize);
 		timerGo();
-		nsortStep[i] =  selectSort(mPtrArray, currentArraySize);
-		nsortTime[i] = timerStop();
+		steps =  mergeSort(mPtrArray, currentArraySize);
+		runtime = timerStop();
+		mergeStepData->addData(currentArraySize, steps);
+		mergeTimeData->addData(currentArraySize, runtime);
 		__assert__(checkArray(currentArraySize));
 
+		randArray(currentArraySize);
+		timerGo();
+		steps =  insertSort(mPtrArray, currentArraySize);
+		runtime = timerStop();
+		insertStepData->addData(currentArraySize, steps);
+		insertTimeData->addData(currentArraySize, runtime);
+		__assert__(checkArray(currentArraySize));
+
+		randArray(currentArraySize);
+		timerGo();
+		steps =  bubbleSort(mPtrArray, currentArraySize);
+		runtime = timerStop();
+		bubbleStepData->addData(currentArraySize, steps);
+		bubbleTimeData->addData(currentArraySize, runtime);
+		__assert__(checkArray(currentArraySize));
+
+		//Display a progress indicator
 		double progress = ((double)(i+1)/(double)times)*100.0;
-		if (progress > 99)
-		{
-			printf("\r         %.lf%%...OK\rRunning:\n", 100.0);
-		}
-		else
 		printf("\r         %.lf%%\rRunning:", progress);
 	}
-	//Exec plotter
-	plotter->feedData(qsortStep, qsortTime, nsortStep, nsortTime, xValues, times);
-	plotter->go("plot");
-
-	//Quit plotter
-	plotter->quitLuaEnv();
-	delete plotter;
-	delete[] qsortTime;
-	delete[] qsortStep;
-	delete[] nsortTime;
-	delete[] nsortStep;
-	delete[] xValues;
-
-
-/*
-	randArray();
-	cout<<"Raw Array["<<mMaxArraySize<<"]:\n";
-	unsigned int cost = 0;
-
-	Run_Test(quickSort);
-	Run_Test(mergeSort);
-
-	Run_Test(insertSort);
-
-	Run_Test(bubbleSort);
-	Run_Test(selectSort);
-*/
+	printf("\r         %.lf%%...OK\rRunning:\n", 100.0);
 	
+	plotter->display();
+	delete plotter;
+	plotter = NULL; 
 }
 unsigned int TestSort::quickSort( int* array, int arraySize )
 {

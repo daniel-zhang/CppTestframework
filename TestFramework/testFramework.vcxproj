@@ -40,13 +40,13 @@
     <OutDir>$(SolutionDir)/$(ProjectName)/$(Configuration)/</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IntDir>$(SolutionDir)/$(ProjectName)/$(Configuration)/Intermediate</IntDir>
+    <IntDir>$(SolutionDir)/$(ProjectName)/$(Configuration)/Intermediate/</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)/$(ProjectName)/$(Configuration)/</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IntDir>$(SolutionDir)/$(ProjectName)/$(Configuration)/Intermediate</IntDir>
+    <IntDir>$(SolutionDir)/$(ProjectName)/$(Configuration)/Intermediate/</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -77,7 +77,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\luabinding.h" />
+    <ClInclude Include="include\luaplotter.h" />
     <ClInclude Include="include\memoverride.h" />
     <ClInclude Include="include\reflect.h" />
     <ClInclude Include="include\search.h" />
@@ -88,7 +88,7 @@
     <ClInclude Include="include\testreflect.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\luabinding.cpp" />
+    <ClCompile Include="source\luaplotter.cpp" />
     <ClCompile Include="source\memoverride.cpp" />
     <ClCompile Include="source\reflect.cpp" />
     <ClCompile Include="source\search.cpp" />
@@ -100,9 +100,7 @@
     <ClCompile Include="source\testreflect.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="lua\functest.lua" />
-    <None Include="lua\plot.wlua" />
-    <None Include="lua\test.lua" />
+    <None Include="lua\plot.lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
