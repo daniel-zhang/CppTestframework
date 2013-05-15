@@ -8,8 +8,8 @@ int main(int argc, char** argv)
 {
 	TestFramework tf;
 // 	tf.addTest<TestSerialization>(true);
-// 	tf.addTest<TestSort>(true);
-	tf.addTest<TestLuaBinding>(true);
+ 	tf.addTest<TestSort>(true);
+//	tf.addTest<TestLuaBinding>(true);
 
 	tf.startAll();
 	

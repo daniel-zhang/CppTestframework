@@ -2,6 +2,7 @@
 #define _SORT_H
 
 #include "testbase.h"
+
 #include <string>
 #include <Windows.h> //To make use of the system's timer, rather than standard C timer
 using namespace std;
@@ -40,17 +41,17 @@ protected:
 
 	//A simple profiler for CPU tick, to be re-factored into the test base
 	void timerGo();
-	void timerStop();
+	double timerStop();
 	double mFreq;
 	__int64 mPerfValue;
 
 	//Generate a random INT array
-	void randArray();
+	void randArray(int aSize);
 	void showArray();
-	bool checkArray();	
+	bool checkArray(int aSize);	
 	int mRandStart;
 	int mRandEnd;
-	int mArraySize;
+	int mMaxArraySize;
 	int* mPtrArray;
 };
 

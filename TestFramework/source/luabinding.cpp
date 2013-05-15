@@ -3,69 +3,144 @@
 
 using namespace std;
 
-TestLuaBinding::TestLuaBinding()
-{
-	mAlias = "TestLuaBinding";
-}
-
-TestLuaBinding::~TestLuaBinding()
+//
+//LuaPlotter
+//
+LuaPlotter::LuaPlotter()
 {
 
 }
 
-void TestLuaBinding::run()
+LuaPlotter::~LuaPlotter()
 {
-	initLua();
 
-
-
-	testLuaStack();
-
-	shutLua();
 }
 
-void TestLuaBinding::initLua()
+void LuaPlotter::initLuaEnv( string script )
 {
 	mLuaState = lua_open();
-
+	luaL_openlibs(mLuaState);
+	//Script should not contain MAIN chunk
+	int error = luaL_dofile(mLuaState, script.c_str());
+	checkError(error, string("Load LUA script:\"") + script + "\"...OK");
 }
 
-void TestLuaBinding::shutLua()
+void LuaPlotter::quitLuaEnv()
 {
 	lua_close(mLuaState);
 }
 
-void TestLuaBinding::stackDump( lua_State* L )
+//Assume initLuaEnv() is called and succeeded
+void LuaPlotter::feedData( double* qsortStep, double* qsortTime, double* nsortStep, double* nsortTime, double* xValues, int n )
 {
-	int top = lua_gettop(L);
+// 	//dump ori data
+// 	for (int i = 0; i < n; ++i)
+// 	{
+// 		cout<<i<<": "<<qsortStep[i]<<endl;
+// 	}
+//	setLegend("qsortLegend", "Quick Sort");
+//	setLegend("nsortLegend", "Naive Sort");
 
-	for (int i = 1; i <= top; i++)
+	setLuaTable("qsortSteps", xValues, qsortStep, n);
+	setLuaTable("qsortTime", xValues, qsortTime, n);
+	setLuaTable("nsortSteps", xValues, nsortStep, n);
+	setLuaTable("nsortTime", xValues, nsortTime, n);
+
+	//dump lua data
+/*	luaL_dostring(mLuaState, "for i,v in pairs(qsortSteps) do print(i,v) end");*/
+}
+
+
+void LuaPlotter::go(const char* luaFuncName)
+{
+	lua_getglobal(mLuaState, luaFuncName);
+	int error = lua_pcall(mLuaState, 0, 0, 0);
+	checkError(error);
+}
+
+//Internal stack operations
+void LuaPlotter::checkError(int e, string msg)
+{
+	if (e)
 	{
-		int t = lua_type(L, i);
+		cout<<lua_tostring(mLuaState, -1)<<endl;
+		lua_pop(mLuaState, 1);
+
+#ifdef _DEBUG
+		dumpStack();
+#endif
+
+	}
+#ifdef _DEBUG
+	else if (!msg.empty())
+	{
+		cout<<msg<<endl;
+	}
+#endif
+}
+
+void LuaPlotter::dumpStack()
+{
+	cout<<"Stack Dump[base..top]:"<<endl;
+	for (int i = 1; i <= lua_gettop(mLuaState); i++)
+	{
+		int t = lua_type(mLuaState, i);
 		switch(t)
 		{
 		case LUA_TSTRING:
-			std::cout<<lua_tostring(L, i);
+			std::cout<<i<<":(string)"<<lua_tostring(mLuaState, i);
 			break;
-			
+
 		case LUA_TBOOLEAN:
-			std::cout<<(lua_toboolean(L, i)?"true":"false");
+			std::cout<<i<<":(boolean)"<<(lua_toboolean(mLuaState, i)?"true":"false");
 			break;
 
 		case LUA_TNUMBER:
-			std::cout<<(int)lua_tonumber(L, i);
+			std::cout<<i<<":(number)"<<(int)lua_tonumber(mLuaState, i);
 			break;
 
 		default:
-			std::cout<<lua_typename(L, t);
+			std::cout<<i<<":"<<lua_typename(mLuaState, t);
 			break;
 		}
-		std::cout<<" | ";
+		std::cout<<" -> ";
 	}
-	std::cout<<endl;
+	std::cout<<endl<<endl;
 }
 
-void TestLuaBinding::startLuaShell()
+
+void LuaPlotter::setLegend( const char* luaGTable, const char* legend )
+{
+	lua_newtable(mLuaState);
+	setField(luaGTable, legend);
+	lua_setglobal(mLuaState, luaGTable);
+}
+
+void LuaPlotter::setLuaTable( const char* luaGTable, double* keys, double* values , int n)
+{
+	lua_newtable(mLuaState);
+	for (int i = 0; i < n; ++i)
+	{
+		setField(keys[i], values[i]);
+	}
+	lua_setglobal(mLuaState, luaGTable);
+}
+
+void LuaPlotter::setField( int key, double val )
+{
+	lua_pushnumber(mLuaState, key);
+	lua_pushnumber(mLuaState, val);
+	lua_settable(mLuaState, -3);
+}
+
+void LuaPlotter::setField( const char* key, const char* val )
+{
+	lua_pushstring(mLuaState, key);
+	lua_pushstring(mLuaState, val);
+	lua_settable(mLuaState, -3);
+}
+
+void LuaPlotter::startLuaShell()
 {
 	luaL_openlibs(mLuaState);
 	std::cout<<"LUA Shell"<<endl;
@@ -82,30 +157,63 @@ void TestLuaBinding::startLuaShell()
 	}
 }
 
-void TestLuaBinding::testLuaStack()
+//
+//Test Lua Binding
+//
+
+TestLuaBinding::TestLuaBinding()
 {
-	lua_pushboolean(mLuaState, true);
-	lua_pushnumber(mLuaState, 10);
-	lua_pushnil(mLuaState);
-	lua_pushstring(mLuaState, "Hello");
-	stackDump(mLuaState);
+	mAlias = "TestLuaBinding";
+}
 
-	lua_pushvalue(mLuaState, -4); stackDump(mLuaState);
-	/* true  10  nil  `hello'  true  */
+TestLuaBinding::~TestLuaBinding()
+{
 
-	lua_replace(mLuaState, 3); stackDump(mLuaState);
-	/* true  10  true  `hello'  */
+}
 
-	lua_settop(mLuaState, 6); stackDump(mLuaState);
-	/* true  10  true  `hello'  nil  nil  */
+void TestLuaBinding::getTestData()
+{
+	xNum = 10;
+	qsortStep = new double[xNum];
+	qsortTime = new double[xNum];
+	nsortStep = new double[xNum];
+	nsortTime = new double[xNum];
+	xValues = new double[xNum];
 
-	lua_remove(mLuaState, -3); stackDump(mLuaState);
-	/* true  10  true  nil  nil  */
+	for (int i = 0; i < xNum; ++i)
+	{
+		xValues[i] = (i)*10000;
+		qsortStep[i] = i*i + 3*i + 12;
+		qsortTime[i] = i*i + 2*i + 3;
 
-	lua_settop(mLuaState, -5); stackDump(mLuaState);
-	/* true  */
-	lua_pushvalue(mLuaState, 1); stackDump(mLuaState);
-	lua_insert(mLuaState, 1); stackDump(mLuaState);
+		nsortTime[i] = i*i + 4*i;
+		nsortStep[i] = i*i - i;
+	}
+}
+
+void TestLuaBinding::clearTestData()
+{
+	delete[] qsortTime;
+	delete[] qsortStep;
+	delete[] nsortTime;
+	delete[] nsortStep;
+	delete[] xValues;
 }
 
 
+void TestLuaBinding::run()
+{
+	getTestData();
+
+	mpLuaPlotter = new LuaPlotter();
+	mpLuaPlotter->initLuaEnv("../lua/test.lua");
+
+	mpLuaPlotter->feedData(qsortStep, qsortTime, nsortStep, nsortTime, xValues, xNum);
+	mpLuaPlotter->go("plot");
+
+	mpLuaPlotter->quitLuaEnv();
+
+	delete mpLuaPlotter;
+
+	clearTestData();
+}

@@ -23,6 +23,9 @@
     <Filter Include="luabinding">
       <UniqueIdentifier>{a610c9f7-ef3c-4ed2-8575-72b4ebddec1a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LuaScripts">
+      <UniqueIdentifier>{5ed9e4ca-008f-4d37-b532-4c188833077d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\sort.h">
@@ -82,5 +85,10 @@
     <ClCompile Include="source\luabinding.cpp">
       <Filter>luabinding</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="lua\test.lua">
+      <Filter>LuaScripts</Filter>
+    </None>
   </ItemGroup>
 </Project>

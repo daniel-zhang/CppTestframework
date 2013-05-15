@@ -1,14 +1,15 @@
 #include "sort.h"
-
+#include "luabinding.h"//to use lua plotter
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <iostream>
 using namespace std;
 
-TestSort::TestSort():mArraySize(20000),mRandStart(0),mRandEnd(30000)
+TestSort::TestSort():mMaxArraySize(20000),mRandStart(0),mRandEnd(30000)
 {
 	mAlias = "Sorting Comparison";
-	mPtrArray = new int[mArraySize];
+	mPtrArray = new int[mMaxArraySize];
 	LARGE_INTEGER tmp;
 	QueryPerformanceFrequency(&tmp);
 	mFreq = tmp.QuadPart;
@@ -19,10 +20,13 @@ TestSort::~TestSort()
 	delete []mPtrArray;
 }
 
-void TestSort::randArray()
+void TestSort::randArray(int aSize)
 {	
+	if (aSize> mMaxArraySize)
+		return;
+
 	srand(int(time(0)));
-	for (int iter = 0; iter < mArraySize; ++iter)
+	for (int iter = 0; iter < aSize; ++iter)
 	{
 		mPtrArray[iter] = rand()%(mRandEnd - mRandStart);
 	}
@@ -31,20 +35,20 @@ void TestSort::randArray()
 void TestSort::showArray()
 {
 	cout<<"\"";
-	for (int iter = 0; iter < mArraySize; ++iter)
+	for (int iter = 0; iter < mMaxArraySize; ++iter)
 		cout<< mPtrArray[iter] << " ";
 	cout<<"\"\n\n";
 }
 
 //TODO: make sure the sorted array does not damage its items
-bool TestSort::checkArray()
+bool TestSort::checkArray( int aSize )
 {
 	//Check if the array is ascendant
-	if (mArraySize == 1)
+	if (aSize == 1)
 		return true;
 
 	bool ret = true;
-	for (int i = 0; i < mArraySize -1; ++i)
+	for (int i = 0; i < aSize -1; ++i)
 	{
 		ret &= (mPtrArray[i] <= mPtrArray[i+1]);
 		if(!ret) break;
@@ -59,27 +63,84 @@ void TestSort::timerGo()
 	mPerfValue = v.QuadPart;
 }
 
-void TestSort::timerStop()
+double TestSort::timerStop()
 {
 	LARGE_INTEGER v;
 	QueryPerformanceCounter(&v);
 	__int64 cur = v.QuadPart;
-	cout<<(cur-mPerfValue)*1000/mFreq<<" ms";
+
+	return (cur-mPerfValue)*1000/mFreq;
 }
 
-#define Run_Test(sort)\
-	cout<<#sort<<": ";\
-	timerGo(); \
-	cost = sort(mPtrArray, mArraySize); \
-	timerStop();\
-	cout<<" Cost: "<<cost<<endl;\
-	__assert__(checkArray());\
-	randArray();
+// #define Run_Test(sort)\
+// 	cout<<#sort<<": ";\
+// 	timerGo(); \
+// 	cost = sort(mPtrArray, mMaxArraySize); \
+// 	timerStop();\
+// 	cout<<" Cost: "<<cost<<endl;\
+// 	__assert__(checkArray());\
+// 	randArray();
 
 void TestSort::run()
 {
+	//Init  plotter
+	//LUA plotter
+	LuaPlotter* plotter = new LuaPlotter();
+	plotter->initLuaEnv("../lua/test.lua");
+
+	//Generate Test Data
+	int step = 500;
+	int times = mMaxArraySize/step;
+
+	double *qsortStep = new double[times];
+	double *qsortTime = new double[times];
+	double *nsortStep = new double[times];
+	double *nsortTime = new double[times];
+	double *xValues = new double[times];
+
+	for (int i = 0; i <times; ++i)
+	{
+		int currentArraySize = step*(i);
+		
+		xValues[i] = currentArraySize;
+
+		randArray(currentArraySize);
+		timerGo();
+		qsortStep[i] =  quickSort(mPtrArray, currentArraySize);
+		qsortTime[i] = timerStop();
+		__assert__(checkArray(currentArraySize));
+
+		randArray(currentArraySize);
+		timerGo();
+		nsortStep[i] =  selectSort(mPtrArray, currentArraySize);
+		nsortTime[i] = timerStop();
+		__assert__(checkArray(currentArraySize));
+
+		double progress = ((double)(i+1)/(double)times)*100.0;
+		if (progress > 99)
+		{
+			printf("\r         %.lf%%...OK\rRunning:\n", 100.0);
+		}
+		else
+		printf("\r         %.lf%%\rRunning:", progress);
+	}
+	//Exec plotter
+	plotter->feedData(qsortStep, qsortTime, nsortStep, nsortTime, xValues, times);
+	plotter->go("plot");
+
+	//Quit plotter
+	plotter->quitLuaEnv();
+	delete plotter;
+	delete[] qsortTime;
+	delete[] qsortStep;
+	delete[] nsortTime;
+	delete[] nsortStep;
+	delete[] xValues;
+
+
+/*
 	randArray();
-	cout<<"Raw Array["<<mArraySize<<"]:\n";
+	cout<<"Raw Array["<<mMaxArraySize<<"]:\n";
 	unsigned int cost = 0;
 
 	Run_Test(quickSort);
@@ -89,12 +150,16 @@ void TestSort::run()
 
 	Run_Test(bubbleSort);
 	Run_Test(selectSort);
+*/
 	
 }
 unsigned int TestSort::quickSort( int* array, int arraySize )
 {
+	if (arraySize < 0)
+		return 0;
+
 	unsigned int cost = 0;
-	_quickSort(mPtrArray, 0, mArraySize-1, &cost);
+	_quickSort(mPtrArray, 0, arraySize-1, &cost);
 	return cost;
 }
 
@@ -197,6 +262,8 @@ unsigned int TestSort::selectSort( int* array, int arraySize )
 
 unsigned int TestSort::mergeSort(int* array, int arraySize)
 {
+	if (arraySize < 0)
+		return 0;
 	unsigned int cost = 0;
 	int* p = new int[arraySize];
 	divide(array, 0, arraySize-1, p, &cost);

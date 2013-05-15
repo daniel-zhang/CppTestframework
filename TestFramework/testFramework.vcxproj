@@ -99,6 +99,9 @@
     <ClCompile Include="source\testmain.cpp" />
     <ClCompile Include="source\testreflect.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="lua\test.lua" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
