@@ -90,5 +90,8 @@
     <None Include="lua\test.lua">
       <Filter>LuaScripts</Filter>
     </None>
+    <None Include="lua\functest.lua">
+      <Filter>LuaScripts</Filter>
+    </None>
   </ItemGroup>
 </Project>

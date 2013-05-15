@@ -20,7 +20,7 @@ void LuaPlotter::initLuaEnv( string script )
 {
 	mLuaState = lua_open();
 	luaL_openlibs(mLuaState);
-	//Script should not contain MAIN chunk
+	//As luaL_dofile is used here, script should not contain MAIN chunk
 	int error = luaL_dofile(mLuaState, script.c_str());
 	checkError(error, string("Load LUA script:\"") + script + "\"...OK");
 }
@@ -157,6 +157,48 @@ void LuaPlotter::startLuaShell()
 	}
 }
 
+int LuaPlotter::invokeLuaFunc( const char* luaFuncName, const char* format, ... )
+{
+	lua_getglobal(mLuaState, luaFuncName);
+
+	va_list argv;
+	va_start(argv, format);
+	int argc = 0;
+	while(*format)
+	{
+		switch(*format++)
+		{
+		case 'd':
+			lua_pushnumber(mLuaState, va_arg(argv, double));
+			break;
+
+		case 'i':
+			lua_pushnumber(mLuaState, va_arg(argv, int));
+			break;
+
+		case 's':
+			lua_pushstring(mLuaState, va_arg(argv, char*));
+			break;
+
+		case '>':
+			goto endwhile;
+
+		default:
+			cout<<"invokeLuaFunc: invalid option "<<*(format-1)<<endl;
+			return -1;
+		}
+		argc++;
+		//Check if stack overflows, since a varied length arg list might cause that.
+		luaL_checkstack(mLuaState, 1, "too many arguments");
+	}endwhile:
+
+	int error = lua_pcall(mLuaState, argc, 0, 0);
+	checkError(error);
+	va_end(argv);
+
+	return error;
+}
+
 //
 //Test Lua Binding
 //
@@ -171,49 +213,26 @@ TestLuaBinding::~TestLuaBinding()
 
 }
 
-void TestLuaBinding::getTestData()
-{
-	xNum = 10;
-	qsortStep = new double[xNum];
-	qsortTime = new double[xNum];
-	nsortStep = new double[xNum];
-	nsortTime = new double[xNum];
-	xValues = new double[xNum];
-
-	for (int i = 0; i < xNum; ++i)
-	{
-		xValues[i] = (i)*10000;
-		qsortStep[i] = i*i + 3*i + 12;
-		qsortTime[i] = i*i + 2*i + 3;
-
-		nsortTime[i] = i*i + 4*i;
-		nsortStep[i] = i*i - i;
-	}
-}
-
-void TestLuaBinding::clearTestData()
-{
-	delete[] qsortTime;
-	delete[] qsortStep;
-	delete[] nsortTime;
-	delete[] nsortStep;
-	delete[] xValues;
-}
-
-
 void TestLuaBinding::run()
-{
-	getTestData();
+{	
+	LuaPlotter* p = new LuaPlotter();
+	p->initLuaEnv("../lua/functest.lua");
+	
+	int error = 0;
 
-	mpLuaPlotter = new LuaPlotter();
-	mpLuaPlotter->initLuaEnv("../lua/test.lua");
+	error = p->invokeLuaFunc("t0", "" );
+	__assert__(error==0);
 
-	mpLuaPlotter->feedData(qsortStep, qsortTime, nsortStep, nsortTime, xValues, xNum);
-	mpLuaPlotter->go("plot");
+	error = p->invokeLuaFunc("t1", "s", "first" );
+	__assert__(error==0);
 
-	mpLuaPlotter->quitLuaEnv();
+	error = p->invokeLuaFunc("t2", "sd", "first", 2.0001);
+	__assert__(error==0);
 
-	delete mpLuaPlotter;
+	error = p->invokeLuaFunc("t3", "sdi", "first", 2.0001, 3 );
+	__assert__(error==0);
 
-	clearTestData();
+	p->quitLuaEnv();
+
+	delete p;
 }

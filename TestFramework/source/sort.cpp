@@ -86,7 +86,7 @@ void TestSort::run()
 	//Init  plotter
 	//LUA plotter
 	LuaPlotter* plotter = new LuaPlotter();
-	plotter->initLuaEnv("../lua/test.lua");
+	plotter->initLuaEnv("../lua/plot.lua");
 
 	//Generate Test Data
 	int step = 500;

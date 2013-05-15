@@ -100,6 +100,7 @@
     <ClCompile Include="source\testreflect.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="lua\functest.lua" />
     <None Include="lua\test.lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

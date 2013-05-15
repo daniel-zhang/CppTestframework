@@ -29,9 +29,10 @@ void TestBase::doAssertion( bool expr, string exprString, string srcFile, unsign
 		
 		setConsoleColor(FOREGROUND_RED);
 		cout<<"FAILED"<<endl;
-		setConsoleDefaultColor();
-
+		
+		setConsoleColor(FOREGROUND_GREEN|FOREGROUND_RED);
 		cout<<"@Src:<"<<srcFile<<">"<<" Line<"<<lineNum<<">"<<endl;
+		setConsoleDefaultColor();
 	}
 	else if (asst->mStatus && !mMute)
 	{
