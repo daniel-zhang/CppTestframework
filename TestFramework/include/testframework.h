@@ -9,6 +9,8 @@
 
 using namespace std;
 
+/**A super simple test framework.
+*/
 class TestFramework
 {
 public:
@@ -24,8 +26,6 @@ public:
 	}
 
 	void startAll();
-	void setMute();
-	
 private:
 	void touch(TestBase* testCase);
 	void evaluate();

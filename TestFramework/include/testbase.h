@@ -19,6 +19,10 @@ struct TestAssertion
 	TestAssertion():mStatus(false){}
 };
 
+/**The base for all test cases. 
+Provides customized assertions and colorful CMD output.
+*/
+#define  __assert__(expr) doAssertion(expr, #expr, __FILE__, __LINE__)
 class TestBase
 {
 public:	
@@ -30,7 +34,7 @@ public:
 	void setMute(bool m);
 protected:
 	friend class TestFramework;
-	void doAssertion(bool expr, string exprString, string srcFile, unsigned int lineNum);
+	bool doAssertion(bool expr, string exprString, string srcFile, unsigned int lineNum);
 
 	bool isPassed();
 	bool isTouched();
@@ -40,8 +44,6 @@ protected:
 	string mAlias;
 	vector<TestAssertion*> mAssertions;
 };
-
-#define  __assert__(expr) doAssertion(expr, #expr, __FILE__, __LINE__)
 
 BOOL setConsoleColor(WORD attributes);
 BOOL setConsoleDefaultColor();

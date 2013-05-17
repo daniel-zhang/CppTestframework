@@ -12,7 +12,7 @@ TestBase::~TestBase()
 
 }
 
-void TestBase::doAssertion( bool expr, string exprString, string srcFile, unsigned int lineNum )
+bool TestBase::doAssertion( bool expr, string exprString, string srcFile, unsigned int lineNum )
 {
 	TestAssertion* asst = new TestAssertion();
 	asst->mStatus = expr;
@@ -44,6 +44,7 @@ void TestBase::doAssertion( bool expr, string exprString, string srcFile, unsign
 		cout<<" PASSED"<<endl;
 		setConsoleDefaultColor();
 	}
+	return expr;
 }
 
 bool TestBase::isPassed()
@@ -70,7 +71,6 @@ void TestBase::setMute( bool m )
 {
 	mMute = m;
 }
-
 
 BOOL setConsoleColor( WORD attributes )
 {

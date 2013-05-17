@@ -44,7 +44,7 @@ function show(wndTitle)
 	for k,v in pairs(plots) do
 		iup.Append(vbox, v)
 	end
-	dlg = iup.dialog{vbox, title=wndTitle,size="THIRDxHALF"}
+	dlg = iup.dialog{vbox, title=wndTitle,size="FULLxFULL"}
 	dlg:show()
 	iup.MainLoop()
 end

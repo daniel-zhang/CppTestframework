@@ -11,14 +11,8 @@
     <Filter Include="reflection">
       <UniqueIdentifier>{f8a630fb-2171-4e92-bd82-64ea12ad2421}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sorting">
-      <UniqueIdentifier>{fd4fec12-827d-4720-bd74-a6044636ca2c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="serialization">
       <UniqueIdentifier>{ceb41afd-1a33-4a32-b031-feaf38e5636f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="search">
-      <UniqueIdentifier>{0f698c95-a53f-4c11-93a5-64e3db17b9f4}</UniqueIdentifier>
     </Filter>
     <Filter Include="plotter">
       <UniqueIdentifier>{a610c9f7-ef3c-4ed2-8575-72b4ebddec1a}</UniqueIdentifier>
@@ -26,16 +20,13 @@
     <Filter Include="plotter\LuaScripts">
       <UniqueIdentifier>{5ed9e4ca-008f-4d37-b532-4c188833077d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="algo">
+      <UniqueIdentifier>{fd4fec12-827d-4720-bd74-a6044636ca2c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\sort.h">
-      <Filter>sorting</Filter>
-    </ClInclude>
     <ClInclude Include="include\serialization.h">
       <Filter>serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="include\search.h">
-      <Filter>search</Filter>
     </ClInclude>
     <ClInclude Include="include\testreflect.h">
       <Filter>reflection</Filter>
@@ -55,16 +46,16 @@
     <ClInclude Include="include\luaplotter.h">
       <Filter>plotter</Filter>
     </ClInclude>
+    <ClInclude Include="include\algo.h">
+      <Filter>algo</Filter>
+    </ClInclude>
+    <ClInclude Include="include\testalgo.h">
+      <Filter>algo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\sort.cpp">
-      <Filter>sorting</Filter>
-    </ClCompile>
     <ClCompile Include="source\serialization.cpp">
       <Filter>serialization</Filter>
-    </ClCompile>
-    <ClCompile Include="source\search.cpp">
-      <Filter>search</Filter>
     </ClCompile>
     <ClCompile Include="source\testreflect.cpp">
       <Filter>reflection</Filter>
@@ -84,6 +75,12 @@
     <ClCompile Include="source\testmain.cpp" />
     <ClCompile Include="source\luaplotter.cpp">
       <Filter>plotter</Filter>
+    </ClCompile>
+    <ClCompile Include="source\algo.cpp">
+      <Filter>algo</Filter>
+    </ClCompile>
+    <ClCompile Include="source\testalgo.cpp">
+      <Filter>algo</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

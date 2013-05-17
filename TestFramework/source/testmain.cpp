@@ -1,14 +1,13 @@
 #include "testframework.h"
-#include "sort.h"
+#include "testalgo.h"
 
 int main(int argc, char** argv)
 {
-	TestFramework tf;
+	TestFramework testfrmk;
 // 	tf.addTest<TestSerialization>(true);
- 	tf.addTest<TestSort>(true);
+	testfrmk.addTest<TestAlgo>(true);
+	testfrmk.startAll();
 
-	tf.startAll();
-	
 	system("pause");
 	return 0;
 }

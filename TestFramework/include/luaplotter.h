@@ -26,7 +26,8 @@ using namespace std;
 class Plot;
 class Dataset;
 /**
-@brief  A C++ wrapper for iup.pplot*/
+@brief  A C++ wrapper for iup.pplot
+TODO: I might need a base plotter with a virtual display() method, from which a lua plotter derives.*/
 class LuaPlotter
 {
 public:
@@ -51,7 +52,7 @@ protected:
 	vector<Plot*> mPlotContainer;
 	/**
 	@brief Invoke a LUA function
-	Instead of using Type Deduction, the method takes a simple format string to describe the input parameters.
+	Instead of using Type Deduction, it takes a simple format string to describe the input parameters.
 	@param [in] luaFuncName Name of the LUA function to be called
 	@param [in] format Describe the varied length parameters
 	@param [in] ... varied length parameter list, requires stdarg.h
@@ -73,7 +74,6 @@ protected:
 
 	///Dump error msg from LUA stack to stdin
 	void checkError(int e, string msg = "");
-
 };
 
 class Plot
@@ -112,7 +112,7 @@ private:
 	string mLegend;
 };
 
-
+///Deprecated.
 class TestLuaBinding : public TestBase
 {
 public:
