@@ -5,143 +5,119 @@
 #include <vector>
 #include <list>
 
+#include <time.h>
+#include <stdlib.h>
+
 using namespace std;
 
 /**Fundamental Data Structures for Graph
 */
-enum _NodeType
-{
-	Invalid_Node_Index = -1,
-};
-
-class GraphNode
+class MSTNode
 {
 public:
-	GraphNode():mIndex(Invalid_Node_Index){}
-	GraphNode(int idx):mIndex(idx){}
-	virtual ~GraphNode(){}
-
-	//Getters & setters
-	int getIndex(){return mIndex;}
-	void setIndex(int idx){mIndex = idx;}
-protected:
-	int mIndex;
+	MSTNode(unsigned int id, unsigned int parentId)
+		:mId(id),mParentId(parentId), mKey(-1)
+	{}
+	unsigned int mId;
+	unsigned int mParentId;
+	double mKey;
 };
 
-class GraphEdge
+class IndexedPriorityQueue
 {
 public:
-	GraphEdge() : mSrc(Invalid_Node_Index), mDst(Invalid_Node_Index), mCost(1.0){}
-	GraphEdge(int from, int to) : mSrc(from),mDst(to),mCost(1.0){}
-	GraphEdge(int from, int to, double cost) : mSrc(from), mDst(to), mCost(cost){}
-	virtual ~GraphEdge(){}
+	void buildQueue();
+	bool isInQueue(unsigned int idx);
 
-	//Getters & setters
-	int getSrc(){return mSrc;}
-	void setSrc(int from){mSrc = from;}
+};
 
-	int getDst(){return mDst;}
-	void setDst(int to){mDst = to;}
+class Node
+{
+public:
+	Node(unsigned int id):mId(id){}
+	unsigned int mId;
+};
 
-	double getCost(){return mCost;}
-	void setCost(double cost){mCost = cost;}
-
-protected:
-	int mSrc;
-	int mDst;
-	double mCost;
+class Edge
+{
+public:
+	Edge(int from, int to, double cost)
+	:mSrcId(from), mDstId(to), cost(cost)
+	{}
+	unsigned int mSrcId;
+	unsigned int mDstId;
+	double cost;
 };
 
 /**A non-directed, connected sparse graph. We do not need a base class for the time being.
 */
-template<typename Node_Type, typename Edge_Type>
-class SparseGraph
+
+class Graph
 {
 public:
-	SparseGraph() :  mNextNodeIndex(0){}
-	SparseGraph(bool isDirected) : mIsDirected(isDirected), mNextNodeIndex(0){}
-	~SparseGraph()
+	Graph(){}
+	void clearGraph()
 	{
-		;
+		unsigned int i, j;
+		for (i = 0; i < mNodes.size(); ++i)
+		{
+			delete mNodes[i];
+			for ( j = 0; j < mAdjList[i].size(); ++j )
+			{
+				delete mAdjList[i][j];
+			}
+			mAdjList[i].clear();
+		}
+		mNodes.clear();
+		mAdjList.clear();
 	}
 	
 	void addNode()
 	{
-		int pos = mNodes.size();
-		mNodes.push_back(new Node_Type(pos));
-		//Add an anonymous empty adjacent list
-		mAdjEdges.push_back(AdjList());
+		unsigned int nextId = mNodes.size();
+		mNodes.push_back(new Node(nextId));
+		mAdjList.push_back(vector<Edge*>());
 	}
 
-	void addEdge(int from, int to, double cost)
+	double randCost()
 	{
-		Edge_Type* pEdge1 = new Edge_Type(from, to, cost);
-		mAdjEdges[from].push_back(pEdge1);
-
-		Edge_Type* pEdge2 = new Edge_Type(to, from, cost);
-		mAdjEdges[to].push_back(pEdge2);
-	}	
-
-	Node_Type* getNode(int idx)
-	{
-		if (idx < mNodes.size())
-			return mNodes[idx];
-		else 
-			return NULL;
+		srand(int(time(0)));
+		return static_cast<double>(rand()%(10));
 	}
 
-	Edge_Type* getEdge(int from, int to)
+	void addEdge(unsigned int from, unsigned int to)
 	{
-		for ( int i = mAdjEdges[from].begin(); i < mAdjEdges[from].end(); ++i )
-		{
-			if (mAdjEdges[from][i]->getDst() == to)
-				return mAdjEdges[from][i];
-		}
-		return NULL;
+		if (from == to || from >= mNodes.size() || to >= mNodes.size())
+			return;
+
+		double cost = randCost();
+		mAdjList[from].push_back(new Edge(from, to , cost));
+		mAdjList[to].push_back(new Edge(to, from, cost));
 	}
 
-	int numNodes()
+	unsigned int numOfNode()
 	{
 		return mNodes.size();
 	}
 
-	int numEdges()
+	unsigned int numOfEdge()
 	{
-		int counter = 0;
-		for (int i = 0; i < mAdjEdges.size(); ++i)
-			counter += mAdjEdges[i].size();
-		//Edges are referenced twice
+		unsigned int counter = 0;
+		unsigned int i;
+		for (i = 0; i < mAdjList.size(); ++i)
+			counter += mAdjList[i].size();
+
 		return counter/2;
 	}
-
-	bool isEmpty()
+	
+	void PrimMST(unsigned int root)
 	{
-		return mNodes.empty();
+
 	}
-
-	void dump()
-	{
-		for (unsigned int i = 0; i < mNodes.size(); ++i)
-		{
-			cout<<"Node ID: "<<mNodes[i]->getIndex()<<endl;	
-			for(unsigned int j = 0; j < mAdjEdges[i].size(); ++j)
-				cout<<mAdjEdges[i][j]->getSrc()<<" -> "<<mAdjEdges[i][j]->getDst()<<" Cost:"<<mAdjEdges[i][j]->getCost()<<endl;
-			cout<<endl;
-		}
-	}
-
-	bool save(){}
-	bool load(){}
-
-public:
-	typedef vector<Node_Type*> NodeContainer;
-	typedef vector<Edge_Type*> AdjList;
-	typedef vector<AdjList> AdjEdgesContainer;
-
 private:
-	NodeContainer mNodes;
-	AdjEdgesContainer mAdjEdges;
-	int mNextNodeIndex;
+	vector<Node*> mNodes;
+	vector<vector<Edge*>> mAdjList;
+
 };
 
 

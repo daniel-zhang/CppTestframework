@@ -14,7 +14,39 @@ LRESULT BaseWindow::handleMsg( UINT uMsg, WPARAM wParam, LPARAM lParam )
 
 	//Handle messages from config window
 	case IDC_ADD_EDGE_BUTTON:
-		MessageBox(mHwnd, L"add edge!", L"Message", MB_OK|MB_ICONINFORMATION);
+		mRenderWindow.setAddEdgeMode();
+		return 0;
+
+	case IDC_ADD_NODE_BUTTON:
+		mRenderWindow.setAddNodeMode();
+		return 0;
+
+	case IDC_CLEAR_BUTTON:
+		mRenderWindow.clearGraph();
+		return 0;
+
+	case IDC_GENERATE_BUTTON:
+		mRenderWindow.execAlgo();
+		return 0;
+
+	case IDC_PRIM_CHECKBOX:
+		mRenderWindow.setPrim();
+		return 0;
+
+	case IDC_DIJ_CHECKBOX:
+		mRenderWindow.setDijkstra();
+		return 0;
+
+	case IDC_ASTAR_CHECKBOX:
+		mRenderWindow.setAStar();
+		return 0;
+
+	case IDC_SET_START_BUTTON:
+		mRenderWindow.setSrcNode();
+		return 0;
+
+	case IDC_SET_END_BUTTON:
+		mRenderWindow.setDstNode();
 		return 0;
 
 	case WM_DESTROY:

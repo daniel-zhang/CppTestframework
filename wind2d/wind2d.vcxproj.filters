@@ -14,20 +14,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp" />
-    <ClCompile Include="source\d2dsample.cpp">
-      <Filter>sample</Filter>
-    </ClCompile>
     <ClCompile Include="source\basewindow.cpp">
       <Filter>sample</Filter>
     </ClCompile>
     <ClCompile Include="source\configwindow.cpp">
       <Filter>sample</Filter>
     </ClCompile>
+    <ClCompile Include="source\datamodel.cpp">
+      <Filter>sample</Filter>
+    </ClCompile>
+    <ClCompile Include="source\renderwindow.cpp">
+      <Filter>sample</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\d2dsample.h">
-      <Filter>sample</Filter>
-    </ClInclude>
     <ClInclude Include="include\winroot.h">
       <Filter>winroot</Filter>
     </ClInclude>
@@ -35,6 +35,12 @@
       <Filter>sample</Filter>
     </ClInclude>
     <ClInclude Include="include\configwindow.h">
+      <Filter>sample</Filter>
+    </ClInclude>
+    <ClInclude Include="include\datamodel.h">
+      <Filter>sample</Filter>
+    </ClInclude>
+    <ClInclude Include="include\renderwindow.h">
       <Filter>sample</Filter>
     </ClInclude>
   </ItemGroup>

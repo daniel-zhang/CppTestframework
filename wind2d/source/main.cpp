@@ -33,7 +33,7 @@ int WINAPI wWinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance,
 
 	BaseWindow bw;
 	
-	if (!bw.create(L"Title", WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN ))
+	if (!bw.create(L"Graph Demo", WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN ))
 	{
 		return 0;
 	}

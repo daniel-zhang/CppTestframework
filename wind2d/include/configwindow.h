@@ -1,6 +1,7 @@
 #pragma once
 
 #include "winroot.h"
+#include "datamodel.h"
 
 class ConfigWindow :public WinRoot<ConfigWindow>
 {
@@ -14,6 +15,7 @@ public:
 	
 	
 private:
+
 	HWND mGroupBox;
 	HWND mBtnAlgo1;
 	HWND mBtnAlgo2;

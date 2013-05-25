@@ -11,6 +11,9 @@
 #define IDC_DIJ_CHECKBOX		993
 #define IDC_ASTAR_CHECKBOX		994
 #define IDC_GENERATE_BUTTON		995
+#define IDC_CLEAR_BUTTON        996
+#define IDC_SET_START_BUTTON    997
+#define IDC_SET_END_BUTTON      998
 
 #include <windows.h>
 

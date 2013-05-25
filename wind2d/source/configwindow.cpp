@@ -57,6 +57,18 @@ LRESULT ConfigWindow::handleMsg( UINT uMsg, WPARAM wParam, LPARAM lParam )
 			case IDC_GENERATE_BUTTON:
 				PostMessage(GetParent(mHwnd), IDC_GENERATE_BUTTON, NULL, NULL);
 				break;
+
+			case IDC_CLEAR_BUTTON:
+				PostMessage(GetParent(mHwnd), IDC_CLEAR_BUTTON, NULL, NULL);
+				break;
+
+			case IDC_SET_START_BUTTON:
+				PostMessage(GetParent(mHwnd), IDC_SET_START_BUTTON, NULL, NULL);
+				break;
+			
+			case IDC_SET_END_BUTTON:
+				PostMessage(GetParent(mHwnd), IDC_SET_END_BUTTON, NULL, NULL);
+				break;
 			}
 			break;
 		}
@@ -100,6 +112,26 @@ void ConfigWindow::onCreate()
 
 	rc.top += 30;
 
+	hBtn = CreateWindowEx(0, L"BUTTON", L"Set Start Node",
+		BS_AUTORADIOBUTTON |BS_PUSHLIKE | WS_CHILD | WS_VISIBLE,
+		rc.left, rc.top, rc.right, rc.bottom, 
+		mHwnd, reinterpret_cast<HMENU>(IDC_SET_START_BUTTON), GetModuleHandle(NULL), 0);
+	if (hBtn)
+	{
+		SendMessage(hBtn, WM_SETFONT, reinterpret_cast<WPARAM>(mFont), TRUE);
+	}
+	rc.top += 30;
+
+	hBtn = CreateWindowEx(0, L"BUTTON", L"Set End Node",
+		BS_AUTORADIOBUTTON |BS_PUSHLIKE | WS_CHILD | WS_VISIBLE,
+		rc.left, rc.top, rc.right, rc.bottom, 
+		mHwnd, reinterpret_cast<HMENU>(IDC_SET_END_BUTTON), GetModuleHandle(NULL), 0);
+	if (hBtn)
+	{
+		SendMessage(hBtn, WM_SETFONT, reinterpret_cast<WPARAM>(mFont), TRUE);
+	}
+	rc.top += 30;
+
 	hBtn = CreateWindowEx(0, L"BUTTON", L"Prim MST",
 		BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE|WS_GROUP,
 		rc.left, rc.top, rc.right, rc.bottom, 
@@ -133,11 +165,22 @@ void ConfigWindow::onCreate()
 
 	hBtn = CreateWindowEx(0, L"BUTTON", L"Generate",
 		BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE,
-		rc.left, rc.top, rc.right, rc.bottom, 
+		rc.left, rc.top, rc.right, rc.bottom + 20, 
 		mHwnd, reinterpret_cast<HMENU>(IDC_GENERATE_BUTTON), GetModuleHandle(NULL), 0);
 	if (hBtn)
 	{
 		SendMessage(hBtn, WM_SETFONT, reinterpret_cast<WPARAM>(mFont), TRUE);
 	}
+	rc.top += 50;
+
+	hBtn = CreateWindowEx(0, L"BUTTON", L"Clear",
+		BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE,
+		rc.left, rc.top, rc.right, rc.bottom, 
+		mHwnd, reinterpret_cast<HMENU>(IDC_CLEAR_BUTTON), GetModuleHandle(NULL), 0);
+	if (hBtn)
+	{
+		SendMessage(hBtn, WM_SETFONT, reinterpret_cast<WPARAM>(mFont), TRUE);
+	}
+	rc.top += 30;
 }
 

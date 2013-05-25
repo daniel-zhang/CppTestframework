@@ -1,7 +1,7 @@
 #ifndef _BASE_WINDOW_H
 #define _BASE_WINDOW_H
 #include "winroot.h"
-#include "d2dsample.h"
+#include "renderwindow.h"
 #include "configwindow.h"
 
 class BaseWindow : public WinRoot<BaseWindow>
@@ -17,7 +17,7 @@ private:
 	void onResize(UINT width, UINT height);
 	HRESULT onCreate();
 
-	D2dSample mRenderWindow;
+	RenderWindow mRenderWindow;
 	ConfigWindow mConfigWindow;
 };
 

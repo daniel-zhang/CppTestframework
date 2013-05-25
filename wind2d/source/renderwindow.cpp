@@ -1,7 +1,7 @@
-#include "d2dsample.h"
+#include "renderwindow.h"
 #include <WindowsX.h>
 
-/*Helper to make the Window DPI aware*/
+/*Helper to make the app DPI aware*/
 class DPIScale
 {
 	static float scaleX;
@@ -27,7 +27,7 @@ float DPIScale::scaleX = 1.0f;
 float DPIScale::scaleY = 1.0f;
 
 /**/
-void D2dSample::calcLayout()
+void RenderWindow::calcLayout()
 {
 	if (mpRenderTarget != NULL)
 	{
@@ -39,7 +39,7 @@ void D2dSample::calcLayout()
 	}
 }
 
-LRESULT D2dSample::init()
+LRESULT RenderWindow::init()
 {
 	if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &mpFactory)))
 		return -1;//CreateWindowEx failed.
@@ -75,7 +75,7 @@ LRESULT D2dSample::init()
 	return 0;
 }
 
-void D2dSample::clearup()
+void RenderWindow::clearup()
 {
 	safeRelease(&mpFactory);
 	safeRelease(&mpStroke);
@@ -83,7 +83,7 @@ void D2dSample::clearup()
 	safeRelease(&mpDWriteTextFormat);
 }
 
-HRESULT D2dSample::createGraphicsResources()
+HRESULT RenderWindow::createGraphicsResources()
 {
 	HRESULT hr = S_OK;
 	if (mpRenderTarget == NULL)
@@ -130,11 +130,19 @@ HRESULT D2dSample::createGraphicsResources()
 		{
 			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black ), &mpBlackBrush);
 		}
+		if (SUCCEEDED(hr))
+		{
+			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Blue ), &mpGreenBrush);
+		}
+		if (SUCCEEDED(hr))
+		{
+			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red ), &mpRedBrush);
+		}
 	}
 	return hr;
 }
 
-void D2dSample::discardGraphicsResources()
+void RenderWindow::discardGraphicsResources()
 {
 	safeRelease(&mpRenderTarget);
 	safeRelease(&mpBrush);
@@ -143,24 +151,11 @@ void D2dSample::discardGraphicsResources()
 	safeRelease(&mpCyanBrush);
 	safeRelease(&mpWhiteBrush);
 	safeRelease(&mpBlackBrush);
+	safeRelease(&mpGreenBrush);
+	safeRelease(&mpRedBrush);
 }
 
-BOOL D2dSample::isPointInNode( D2D1_POINT_2F* pPoint )
-{
-	for (unsigned int i = 0; i < mNodes.size(); ++i)
-	{
-		//Boundary check among 2 degrees of freedom.
-		bool hcheck = mNodes[i].left < pPoint->x && mNodes[i].right > pPoint->x;
-		bool vcheck = mNodes[i].top < pPoint->y && mNodes[i].bottom > pPoint->y;
-		if (hcheck && vcheck)
-		{
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
-
-void D2dSample::onPaint()
+void RenderWindow::onPaint()
 {
 	HRESULT hr = createGraphicsResources();
 	if (SUCCEEDED(hr))
@@ -177,7 +172,7 @@ void D2dSample::onPaint()
 	}
 }
 
-void D2dSample::onResize(UINT width, UINT height)
+void RenderWindow::onResize(UINT width, UINT height)
 {
 	if (mpRenderTarget != NULL)
 	{
@@ -192,93 +187,99 @@ void D2dSample::onResize(UINT width, UINT height)
 	}
 }
 
-void D2dSample::onLButtonDown(int pixelX, int pixelY, DWORD flags)
+void RenderWindow::onLButtonDown(int pixelX, int pixelY, DWORD flags)
 {
-	//Get the current mouse pos and transfer to grip pos.
-	D2D1_POINT_2F mousePos = DPIScale::PixelsToDips(pixelX, pixelY);
-	int nx= (int)mousePos.x/40;
-	int ny = (int)mousePos.y/40;
-	D2D1_POINT_2F gridPos;
-	gridPos.x = nx*40.f + 20.f;
-	gridPos.y = ny*40.f + 20.f;
-
-	//If gridPos is within a valid node, do nothing.
-	if (isPointInNode(&gridPos))
+	D2D1_POINT_2F gridPos = mousePos2GridPos(pixelX, pixelY);
+	switch(mEditMode)
 	{
-		return;
+	case AddNode:
+		{
+			//If the click point is within a valid node, do nothing.
+			if (mGraph.queryNodeByPos(gridPos) != NULL)
+				return;
+			mGraph.addNode(gridPos);
+		}
+		break;
+
+	case AddEdge:
+		{
+			//If the click point is not within a valid node, do nothing.
+			if (mGraph.queryNodeByPos(gridPos) == NULL)
+				return;
+			mActiveData.activeEdgeStart.x = gridPos.x;
+			mActiveData.activeEdgeStart.y = gridPos.y;
+			mActiveData.isActive = true;
+		}
+		break;
+
+	case SetSrc:
+		{
+			//If the click point is not within a valid node, do nothing.
+			Node* pNode = mGraph.queryNodeByPos(gridPos);
+			if ( pNode == NULL)
+				return;
+			mActiveData.srcNode = pNode->mId;
+		}
+		break;
+
+	case SetDst:
+		{
+			//If the click point is not within a valid node, do nothing.
+			Node* pNode = mGraph.queryNodeByPos(gridPos);
+			if ( pNode == NULL)
+				return;
+			mActiveData.dstNode = pNode->mId;
+		}
+		break;
+
+	default:
+		break;
 	}
-
-	mNodes.push_back(D2D1::RectF(gridPos.x-18.f, gridPos.y - 18.f, gridPos.x + 18.f, gridPos.y + 18.f));
-
 	InvalidateRect(mHwnd, NULL, FALSE);
 }
 
-void D2dSample::onRButtonDown( int pixelX, int pixelY, DWORD flags )
+void RenderWindow::onLButtonUp( int pixelX, int pixelY, DWORD flags )
 {
-	//Get the current mouse pos and transfer to grip pos.
-	D2D1_POINT_2F mousePos = DPIScale::PixelsToDips(pixelX, pixelY);
-	int nx= (int)mousePos.x/40;
-	int ny = (int)mousePos.y/40;
-	D2D1_POINT_2F gridPos;
-	gridPos.x = nx*40.f + 20.f;
-	gridPos.y = ny*40.f + 20.f;
-
-	//If the start point is not within a valid node,
-	//do nothing.
-	if (!isPointInNode(&gridPos))
+	if (mEditMode == AddEdge)
 	{
-		return;
-	}
-
-	mCurrentEdge.start = gridPos;
-	mCurrentEdge.inUse = true;
-	InvalidateRect(mHwnd, NULL, FALSE);
-}
-
-void D2dSample::onRButtonUp( int pixelX, int pixelY, DWORD flags )
-{
-	D2D1_POINT_2F mousePos = DPIScale::PixelsToDips(pixelX, pixelY);
-	int nx= (int)mousePos.x/40;
-	int ny = (int)mousePos.y/40;
-	D2D1_POINT_2F gridPos;
-	gridPos.x = nx*40.f + 20.f;
-	gridPos.y = ny*40.f + 20.f;
+		D2D1_POINT_2F gridPos = mousePos2GridPos(pixelX, pixelY);
 	
-	//If the end point is not within a valid node, clear the current
-	//edge and repaint the scene.
-	if (!isPointInNode(&gridPos))
-	{
-		mCurrentEdge.inUse = false;
-		mCurrentEdge.clear();
-		InvalidateRect(mHwnd, NULL, FALSE);
-		return;
+		Node* end = mGraph.queryNodeByPos(gridPos);
+		Node* start = mGraph.queryNodeByPos(mActiveData.activeEdgeStart);
+
+		//If the end point is not within a valid node, or if the end point is the start point,
+		//then clear the active edge and repaint the scene.
+		if ( end == NULL || end == start)
+		{
+			mActiveData.isActive = false;
+			mActiveData.clearActiveEdge();
+			InvalidateRect(mHwnd, NULL, FALSE);
+		}
+		else if (end != NULL)
+		{
+			mGraph.addUndirectedEdge(start->mId, end->mId);
+
+			mActiveData.isActive = false;
+			mActiveData.clearActiveEdge();
+			InvalidateRect(mHwnd, NULL, FALSE);
+		}
 	}
-
-	//TODO: if the end point is the same with the start point...
-	//To compare 2 points, they better be D2D1_POINT_2U
-	mCurrentEdge.end = gridPos;
-	mCurrentEdge.inUse = false;
-	mEdges.push_back(mCurrentEdge);
-	mCurrentEdge.clear();
-
 	InvalidateRect(mHwnd, NULL, FALSE);
 }
 
-void D2dSample::onMouseMove( int pixelX, int pixelY, DWORD flags )
+void RenderWindow::onMouseMove( int pixelX, int pixelY, DWORD flags )
 {
-	D2D1_POINT_2F mousePos = DPIScale::PixelsToDips(pixelX, pixelY);
-	int nx= (int)mousePos.x/40;
-	int ny = (int)mousePos.y/40;
-	D2D1_POINT_2F gridPos;
-	gridPos.x = nx*40.f + 20.f;
-	gridPos.y = ny*40.f + 20.f;
-
-	//Update the edge's end point as user drags the mouse.
-	mCurrentEdge.end = gridPos;
-	InvalidateRect(mHwnd, NULL, FALSE);
+	//Update the edge's end point as user drags the mouse when AddEdge is enabled.
+	if (mEditMode == AddEdge && mActiveData.isActive)
+	{
+		D2D1_POINT_2F gridPos = mousePos2GridPos(pixelX, pixelY);
+		mActiveData.activeEdgeEnd.x = gridPos.x;
+		mActiveData.activeEdgeEnd.y = gridPos.y;
+		InvalidateRect(mHwnd, NULL, FALSE);
+	}	
 }
 
-LRESULT D2dSample::handleMsg( UINT uMsg, WPARAM wParam, LPARAM lParam )
+LRESULT RenderWindow::handleMsg( UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	switch(uMsg)
 	{
@@ -315,12 +316,8 @@ LRESULT D2dSample::handleMsg( UINT uMsg, WPARAM wParam, LPARAM lParam )
 		onLButtonDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), (DWORD)wParam);
 		return 0;
 
-	case WM_RBUTTONDOWN:
-		onRButtonDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), (DWORD)wParam);
-		return 0;
-
-	case WM_RBUTTONUP:
-		onRButtonUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), (DWORD)wParam);
+	case WM_LBUTTONUP:
+		onLButtonUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), (DWORD)wParam);
 		return 0;
 
 	case WM_MOUSEMOVE:
@@ -334,17 +331,17 @@ LRESULT D2dSample::handleMsg( UINT uMsg, WPARAM wParam, LPARAM lParam )
 /************************************************************************/
 /*                                                                      */
 /************************************************************************/
-HRESULT D2dSample::render()
+HRESULT RenderWindow::render()
 {
 	mpRenderTarget->BeginDraw();
 
-	drawGrid();
+	drawAll();
 	//drawClock();
 	
 	return mpRenderTarget->EndDraw();
 }
 
-void D2dSample::drawClockHand( float handLength, float angle, float strokeWidth )
+void RenderWindow::drawClockHand( float handLength, float angle, float strokeWidth )
 {
 	const D2D1_COLOR_F colorTemp = mpBrush->GetColor();
 	
@@ -356,7 +353,7 @@ void D2dSample::drawClockHand( float handLength, float angle, float strokeWidth 
 	mpBrush->SetColor(colorTemp);
 }
 
-void D2dSample::drawClock()
+void RenderWindow::drawClock()
 {
 	if (mpRenderTarget != NULL)
 	{
@@ -378,24 +375,24 @@ void D2dSample::drawClock()
 	}
 }
 
-void D2dSample::drawGrid()
+void RenderWindow::drawAll()
 {
 	if (mpRenderTarget != NULL)
 	{
 		mpRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
-
+		
 		//Draw grid
 		D2D1_SIZE_F size = mpRenderTarget->GetSize();
-		int width = static_cast<int>(size.width);
-		int height = static_cast<int>(size.height);
-		for (int x = 0; x < width; x += 40)
+		UINT width = static_cast<UINT>(size.width);
+		UINT height = static_cast<UINT>(size.height);
+		for (UINT x = 0; x < width; x += mGridSize)
 		{
 			mpRenderTarget->DrawLine(
 				D2D1::Point2F(static_cast<float>(x), 0.f), 
 				D2D1::Point2F(static_cast<float>(x), size.height),
 				mpGrayBrush);
 		}
-		for (int y = 0; y < height; y += 40)
+		for (UINT y = 0; y < height; y += mGridSize)
 		{
 			mpRenderTarget->DrawLine(
 				D2D1::Point2F(0.f,  static_cast<float>(y)), 
@@ -403,37 +400,76 @@ void D2dSample::drawGrid()
 				mpGrayBrush);
 		}
 
-		//Draw current edge if any.
-		if (mCurrentEdge.inUse && mCurrentEdge.getLength()>1.f)
+		//Draw active edge if any.
+		if (mActiveData.isActive && mActiveData.calcDistance() > 1.f)
 		{
-			mpRenderTarget->DrawLine(mCurrentEdge.start, mCurrentEdge.end, mpBlueBrush, 5.f );
+			mpRenderTarget->DrawLine(mActiveData.activeEdgeStart, mActiveData.activeEdgeEnd, mpBlueBrush, 5.f );
+
 			WCHAR text[20] = L"";
-			_snwprintf(text,  ARRAYSIZE(text), L"%.1f", mCurrentEdge.getLength());
-			mpRenderTarget->DrawTextW(text, ARRAYSIZE(text) - 1, mpDWriteTextFormat, &(mCurrentEdge.getTextRect()),mpBlackBrush);
+			_snwprintf(text,  ARRAYSIZE(text), L"%.1f", mActiveData.calcDistance());
+			mpRenderTarget->DrawTextW(text, ARRAYSIZE(text) - 1, mpDWriteTextFormat, &(mActiveData.calcTextRegion()),mpBlackBrush);
 		}
 		
 		//Draw previously added edges.
-		for (unsigned int i = 0; i < mEdges.size(); ++i)
+		for (unsigned int i = 0; i < mGraph.mUndirectedEdges.size(); ++i)
 		{
-			mpRenderTarget->DrawLine(mEdges[i].start, mEdges[i].end, mpBlueBrush, 5.f );
+			Edge* pEdge = mGraph.mUndirectedEdges[i];
+			Node* src = mGraph.queryNodeById(pEdge->mSrcId);
+			Node* dst = mGraph.queryNodeById(pEdge->mDstId);
+
+			mpRenderTarget->DrawLine(src->mPosition, dst->mPosition, mpBlueBrush, 5.f );
+
 			WCHAR text[20] = L"";
-			_snwprintf(text,  ARRAYSIZE(text), L"%.1f", mEdges[i].getLength());
-			mpRenderTarget->DrawTextW(text, ARRAYSIZE(text) - 1, mpDWriteTextFormat, &(mEdges[i].getTextRect()),mpBlackBrush);
+			_snwprintf(text,  ARRAYSIZE(text), L"%.1f", mActiveData.calcDistance(src->mPosition, dst->mPosition));
+			mpRenderTarget->DrawTextW(
+				text, ARRAYSIZE(text) - 1, mpDWriteTextFormat, 
+				&(mActiveData.calcTextRegion(src->mPosition, dst->mPosition)),
+				mpBlackBrush);
 		}
 
-		//Draw Rectangles
-		for (unsigned int i = 0; i < mNodes.size(); ++i)
+		//Draw nodes
+		UINT nodeSize = mGridSize/2 - 2;
+		for (unsigned int i = 0; i < mGraph.numOfNode(); ++i)
 		{
-			WCHAR text[20] = L"";
+			D2D1_POINT_2F nodePos = mGraph.queryNodeById(i)->mPosition;
+			D2D1_RECT_F nodeRect = 
+				D2D1::RectF(
+				nodePos.x-nodeSize, nodePos.y - nodeSize, 
+				nodePos.x + nodeSize, nodePos.y + nodeSize);
+
+			//Select brush for different node types
+			ID2D1SolidColorBrush* pBrushSelector;
+			if (i == mActiveData.srcNode)
+				pBrushSelector = mpGreenBrush;
+			else if(i == mActiveData.dstNode)
+				pBrushSelector = mpRedBrush;
+			else
+				pBrushSelector = mpCyanBrush;
+
+			//Draw node
 			mpRenderTarget->FillRoundedRectangle(
-				&(D2D1::RoundedRect(mNodes[i], 5.f, 5.f)),
-				mpCyanBrush);
+				&(D2D1::RoundedRect(nodeRect, 5.f, 5.f)),
+				pBrushSelector);
 			
 			//Draw text
-			_itow_s(i,text, ARRAYSIZE(text), 10);
-			mpRenderTarget->DrawTextW(text, ARRAYSIZE(text) -1, mpDWriteTextFormat, mNodes[i], mpWhiteBrush);
+			WCHAR text[20] = L"";
+			ZeroMemory(text, ARRAYSIZE(text));
+			_snwprintf(text, ARRAYSIZE(text), L"%d", i);
+			mpRenderTarget->DrawTextW(text, ARRAYSIZE(text) -1, mpDWriteTextFormat, nodeRect, mpWhiteBrush);
 		}
 	}	
+}
+
+D2D1_POINT_2F RenderWindow::mousePos2GridPos( int pixelX, int pixelY )
+{
+	D2D1_POINT_2F mouseDPIs = DPIScale::PixelsToDips(pixelX, pixelY);
+	int nx= (int)mouseDPIs.x / mGridSize;
+	int ny = (int)mouseDPIs.y / mGridSize;
+
+	D2D1_POINT_2F gridPos;
+	gridPos.x = static_cast<FLOAT>(nx * mGridSize + mGridSize / 2);
+	gridPos.y = static_cast<FLOAT>(ny * mGridSize + mGridSize / 2);
+	return gridPos;
 }
 
 

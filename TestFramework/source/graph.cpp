@@ -12,18 +12,19 @@ TestGraph::~TestGraph()
 
 void TestGraph::run()
 {
- 	SparseGraph<GraphNode, GraphEdge> sparseGraph;
-	
-	for (int i = 0; i < 5; ++i)
-	{
-		sparseGraph.addNode();
-	}
-	sparseGraph.addEdge(0,4,4);
-	sparseGraph.addEdge(0,2,5);
-	sparseGraph.addEdge(1,2,7);
-	sparseGraph.addEdge(1,4,3);
-	sparseGraph.addEdge(1,3,6);
-	sparseGraph.addEdge(2,3,9);
- 
- 	sparseGraph.dump();
+	Graph graph;
+	graph.addNode();
+	graph.addNode();
+	graph.addNode();
+	graph.addNode();
+
+	graph.addEdge(0, 1);
+	graph.addEdge(1, 2);
+	graph.addEdge(2, 3);
+	graph.addEdge(3, 1);
+	graph.addEdge(3, 0);
+	graph.addEdge(2, 0);
+
+	cout<<"Num of Nodes:"<<graph.numOfNode()<<endl;
+	cout<<"Num of Edges:"<<graph.numOfEdge()<<endl;
 }

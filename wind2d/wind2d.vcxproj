@@ -18,7 +18,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -75,13 +75,15 @@
   <ItemGroup>
     <ClCompile Include="source\basewindow.cpp" />
     <ClCompile Include="source\configwindow.cpp" />
-    <ClCompile Include="source\d2dsample.cpp" />
+    <ClCompile Include="source\datamodel.cpp" />
     <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\renderwindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\basewindow.h" />
     <ClInclude Include="include\configwindow.h" />
-    <ClInclude Include="include\d2dsample.h" />
+    <ClInclude Include="include\datamodel.h" />
+    <ClInclude Include="include\renderwindow.h" />
     <ClInclude Include="include\winroot.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
