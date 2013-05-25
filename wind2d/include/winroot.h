@@ -5,6 +5,13 @@
 #define UNICODE
 #endif
 
+#define IDC_ADD_NODE_BUTTON		990
+#define IDC_ADD_EDGE_BUTTON		991
+#define IDC_PRIM_CHECKBOX		992
+#define IDC_DIJ_CHECKBOX		993
+#define IDC_ASTAR_CHECKBOX		994
+#define IDC_GENERATE_BUTTON		995
+
 #include <windows.h>
 
 template<typename SubClass>
@@ -22,13 +29,15 @@ public:
 		int nWidth = CW_USEDEFAULT,
 		int nHeight = CW_USEDEFAULT,
 		HWND hWndParent = 0,
-		HMENU hMenu = 0)
+		HMENU hMenu = 0,
+		HCURSOR hCursor = NULL)
 	{
 		WNDCLASS wc = {0};
 
 		wc.lpfnWndProc   = SubClass::winProc;
 		wc.hInstance     = GetModuleHandle(NULL);//Get the current handle(in a single-threaded environment)
 		wc.lpszClassName = getClassName();
+		wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);//Set default background as white.
 
 		RegisterClass(&wc);
 

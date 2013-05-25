@@ -8,16 +8,33 @@
     <Filter Include="sample">
       <UniqueIdentifier>{87052a8e-bb73-472c-bd89-653953474d55}</UniqueIdentifier>
     </Filter>
+    <Filter Include="winroot">
+      <UniqueIdentifier>{30ee80d2-5fde-4153-ad7c-5621c45422f3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\d2dsample.cpp">
       <Filter>sample</Filter>
     </ClCompile>
+    <ClCompile Include="source\basewindow.cpp">
+      <Filter>sample</Filter>
+    </ClCompile>
+    <ClCompile Include="source\configwindow.cpp">
+      <Filter>sample</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\winroot.h" />
     <ClInclude Include="include\d2dsample.h">
+      <Filter>sample</Filter>
+    </ClInclude>
+    <ClInclude Include="include\winroot.h">
+      <Filter>winroot</Filter>
+    </ClInclude>
+    <ClInclude Include="include\basewindow.h">
+      <Filter>sample</Filter>
+    </ClInclude>
+    <ClInclude Include="include\configwindow.h">
       <Filter>sample</Filter>
     </ClInclude>
   </ItemGroup>

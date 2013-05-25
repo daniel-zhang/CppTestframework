@@ -2,7 +2,7 @@
 #define UNICODE
 #endif
 
-#include "d2dsample.h"
+#include "basewindow.h"
 
 HANDLE g_hTimer = NULL;
 
@@ -31,30 +31,36 @@ int WINAPI wWinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance,
 		return 0;
 	}
 
-	D2dSample sc;
+	BaseWindow bw;
 	
-	if (!sc.create(L"Title", WS_OVERLAPPEDWINDOW))
+	if (!bw.create(L"Title", WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN ))
 	{
 		return 0;
 	}
 
-	ShowWindow(sc.getWinHandle(), 1);
+	ShowWindow(bw.getWinHandle(), nShowCmd);
 
 	MSG msg = {};
-	while (msg.message != WM_QUIT)
+// 	while (msg.message != WM_QUIT)
+// 	{
+// 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+// 		{
+// 			TranslateMessage(&msg);
+// 			DispatchMessage(&msg);
+// 			continue;
+// 		}
+// 		// Wait until the timer expires or any message is posted.
+// 		if (MsgWaitForMultipleObjects(1, &g_hTimer, FALSE, INFINITE, QS_ALLINPUT) 
+// 			== WAIT_OBJECT_0)
+// 		{
+// 			InvalidateRect(sc.getWinHandle(), NULL, FALSE);
+// 		}
+// 	}
+
+	while (GetMessage(&msg, NULL, 0, 0))
 	{
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-			continue;
-		}
-		// Wait until the timer expires or any message is posted.
-		if (MsgWaitForMultipleObjects(1, &g_hTimer, FALSE, INFINITE, QS_ALLINPUT) 
-			== WAIT_OBJECT_0)
-		{
-			InvalidateRect(sc.getWinHandle(), NULL, FALSE);
-		}
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
 
 	CloseHandle(g_hTimer);
