@@ -143,7 +143,7 @@ void TestAlgo::run()
 
 		//(MAX)Heap sort
 		randArray(currentArraySize);
-		Heap heap;
+		HeapSort heap;
 		timerGo();
 		heap.maxHeapSort(mPtrArray, currentArraySize);
 		runtime = timerStop();

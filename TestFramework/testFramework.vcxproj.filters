@@ -23,16 +23,13 @@
     <Filter Include="algo">
       <UniqueIdentifier>{fd4fec12-827d-4720-bd74-a6044636ca2c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="win">
-      <UniqueIdentifier>{f9096ce8-b171-43b5-93e6-d623c5f3f4eb}</UniqueIdentifier>
+    <Filter Include="tests">
+      <UniqueIdentifier>{eea6b6bd-4a58-470a-b652-879137129898}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\serialization.h">
       <Filter>serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="include\testreflect.h">
-      <Filter>reflection</Filter>
     </ClInclude>
     <ClInclude Include="include\reflect.h">
       <Filter>reflection</Filter>
@@ -52,19 +49,25 @@
     <ClInclude Include="include\algo.h">
       <Filter>algo</Filter>
     </ClInclude>
-    <ClInclude Include="include\testalgo.h">
-      <Filter>algo</Filter>
-    </ClInclude>
     <ClInclude Include="include\graph.h">
       <Filter>algo</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ipq.h">
+      <Filter>algo</Filter>
+    </ClInclude>
+    <ClInclude Include="include\testgraph.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="include\testalgo.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="include\testreflect.h">
+      <Filter>tests</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\serialization.cpp">
       <Filter>serialization</Filter>
-    </ClCompile>
-    <ClCompile Include="source\testreflect.cpp">
-      <Filter>reflection</Filter>
     </ClCompile>
     <ClCompile Include="source\reflect.cpp">
       <Filter>reflection</Filter>
@@ -85,11 +88,20 @@
     <ClCompile Include="source\algo.cpp">
       <Filter>algo</Filter>
     </ClCompile>
-    <ClCompile Include="source\testalgo.cpp">
-      <Filter>algo</Filter>
-    </ClCompile>
     <ClCompile Include="source\graph.cpp">
       <Filter>algo</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ipq.cpp">
+      <Filter>algo</Filter>
+    </ClCompile>
+    <ClCompile Include="source\testalgo.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="source\testgraph.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="source\testreflect.cpp">
+      <Filter>tests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -420,11 +420,22 @@ void RenderWindow::drawAll()
 			mpRenderTarget->DrawLine(src->mPosition, dst->mPosition, mpBlueBrush, 5.f );
 
 			WCHAR text[20] = L"";
-			_snwprintf(text,  ARRAYSIZE(text), L"%.1f", mActiveData.calcDistance(src->mPosition, dst->mPosition));
+			//_snwprintf(text,  ARRAYSIZE(text), L"%.1f", mActiveData.calcDistance(src->mPosition, dst->mPosition));
+			_snwprintf(text,  ARRAYSIZE(text), L"%.1f", mGraph.mUndirectedEdges[i]->mCost);
 			mpRenderTarget->DrawTextW(
 				text, ARRAYSIZE(text) - 1, mpDWriteTextFormat, 
 				&(mActiveData.calcTextRegion(src->mPosition, dst->mPosition)),
 				mpBlackBrush);
+		}
+
+		//Draw MST if any
+		for (unsigned int i = 0; i < mGraph.mst.size(); ++i)
+		{
+			if (mGraph.mst[i] == NULL)
+				continue;
+			Node* src = mGraph.queryNodeById(mGraph.mst[i]->mSrcId);
+			Node* dst = mGraph.queryNodeById(mGraph.mst[i]->mDstId);
+			mpRenderTarget->DrawLine(src->mPosition, dst->mPosition, mpRedBrush, 5.f );
 		}
 
 		//Draw nodes

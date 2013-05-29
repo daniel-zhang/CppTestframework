@@ -79,6 +79,7 @@
   <ItemGroup>
     <ClInclude Include="include\algo.h" />
     <ClInclude Include="include\graph.h" />
+    <ClInclude Include="include\ipq.h" />
     <ClInclude Include="include\luaplotter.h" />
     <ClInclude Include="include\memoverride.h" />
     <ClInclude Include="include\reflect.h" />
@@ -86,10 +87,12 @@
     <ClInclude Include="include\testalgo.h" />
     <ClInclude Include="include\testbase.h" />
     <ClInclude Include="include\testframework.h" />
+    <ClInclude Include="include\testgraph.h" />
     <ClInclude Include="include\testreflect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\graph.cpp" />
+    <ClCompile Include="source\ipq.cpp" />
     <ClCompile Include="source\luaplotter.cpp" />
     <ClCompile Include="source\memoverride.cpp" />
     <ClCompile Include="source\reflect.cpp" />
@@ -98,6 +101,7 @@
     <ClCompile Include="source\testalgo.cpp" />
     <ClCompile Include="source\testbase.cpp" />
     <ClCompile Include="source\testframework.cpp" />
+    <ClCompile Include="source\testgraph.cpp" />
     <ClCompile Include="source\testmain.cpp" />
     <ClCompile Include="source\testreflect.cpp" />
   </ItemGroup>

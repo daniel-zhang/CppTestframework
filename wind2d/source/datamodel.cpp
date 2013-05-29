@@ -33,7 +33,7 @@ double Graph::calEuclideanDistance( int srcId, int dstId )
 	{
 		FLOAT deltaX = max(src->mPosition.x, dst->mPosition.x) - min(src->mPosition.x, dst->mPosition.x);
 		FLOAT deltaY = max(src->mPosition.y, dst->mPosition.y) - min(src->mPosition.y, dst->mPosition.y);
-		return sqrt((double)(deltaX*deltaX - deltaY*deltaY));
+		return sqrt((double)(deltaX*deltaX + deltaY*deltaY));
 	}
 	else
 		return -1;
@@ -76,6 +76,7 @@ void Graph::clear()
 	}
 	mAdjList.clear();
 	mUndirectedEdges.clear();
+	mst.clear();
 }
 
 Node* Graph::queryNodeByPos( D2D1_POINT_2F& pos )

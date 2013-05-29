@@ -1,36 +1,10 @@
 #ifndef _GRAPH_H
 #define _GRAPH_H
-
-#include "testbase.h"
 #include <vector>
-#include <list>
-
-#include <time.h>
-#include <stdlib.h>
-
 using namespace std;
 
 /**Fundamental Data Structures for Graph
 */
-class MSTNode
-{
-public:
-	MSTNode(unsigned int id, unsigned int parentId)
-		:mId(id),mParentId(parentId), mKey(-1)
-	{}
-	unsigned int mId;
-	unsigned int mParentId;
-	double mKey;
-};
-
-class IndexedPriorityQueue
-{
-public:
-	void buildQueue();
-	bool isInQueue(unsigned int idx);
-
-};
-
 class Node
 {
 public:
@@ -49,83 +23,23 @@ public:
 	double cost;
 };
 
-/**A non-directed, connected sparse graph. We do not need a base class for the time being.
+/**A non-directed/acyclic/connected graph, stored as an adjacent list.
 */
-
 class Graph
 {
 public:
 	Graph(){}
-	void clearGraph()
-	{
-		unsigned int i, j;
-		for (i = 0; i < mNodes.size(); ++i)
-		{
-			delete mNodes[i];
-			for ( j = 0; j < mAdjList[i].size(); ++j )
-			{
-				delete mAdjList[i][j];
-			}
-			mAdjList[i].clear();
-		}
-		mNodes.clear();
-		mAdjList.clear();
-	}
-	
-	void addNode()
-	{
-		unsigned int nextId = mNodes.size();
-		mNodes.push_back(new Node(nextId));
-		mAdjList.push_back(vector<Edge*>());
-	}
+	void clearGraph();	
+	void addNode();
+	void addEdge(unsigned int from, unsigned int to, double cost);
+	unsigned int numOfNode();
+	unsigned int numOfEdge();
+	void dump();
+	void primMST(int startId, vector<vector<int>>& MST);
 
-	double randCost()
-	{
-		srand(int(time(0)));
-		return static_cast<double>(rand()%(10));
-	}
-
-	void addEdge(unsigned int from, unsigned int to)
-	{
-		if (from == to || from >= mNodes.size() || to >= mNodes.size())
-			return;
-
-		double cost = randCost();
-		mAdjList[from].push_back(new Edge(from, to , cost));
-		mAdjList[to].push_back(new Edge(to, from, cost));
-	}
-
-	unsigned int numOfNode()
-	{
-		return mNodes.size();
-	}
-
-	unsigned int numOfEdge()
-	{
-		unsigned int counter = 0;
-		unsigned int i;
-		for (i = 0; i < mAdjList.size(); ++i)
-			counter += mAdjList[i].size();
-
-		return counter/2;
-	}
-	
-	void PrimMST(unsigned int root)
-	{
-
-	}
 private:
 	vector<Node*> mNodes;
 	vector<vector<Edge*>> mAdjList;
-
 };
 
-
-class TestGraph : public TestBase
-{
-public:
-	TestGraph();
-	~TestGraph();
-	virtual void run();
-};
 #endif

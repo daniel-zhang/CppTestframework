@@ -5,11 +5,11 @@
 A max heap.
 Too many sub methods, so put them into a class.
 */
-class Heap
+class HeapSort
 {
 public:
-	Heap();
-	~Heap();
+	HeapSort();
+	~HeapSort();
 	void maxHeapSort(int* array, int arraySize);
 	unsigned int mCost;
 private:
@@ -18,14 +18,6 @@ private:
 	int _parent(int i );
 	int _left(int i );
 	int _right(int i);
-};
-
-class AdjTable
-{
-public:
-	AdjTable();
-	~AdjTable();
-
 };
 
 ///N(LogN) sort.

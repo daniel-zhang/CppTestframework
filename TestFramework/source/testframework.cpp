@@ -1,7 +1,6 @@
 #include "testbase.h"
 #include "testframework.h"
 
-
 TestFramework::TestFramework()
 {
 

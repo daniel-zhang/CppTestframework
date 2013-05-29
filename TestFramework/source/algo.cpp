@@ -7,32 +7,32 @@ void _quickSort(int* array, int start, int end, unsigned int* cost);
 void merge(int* array, int left, int mid, int right, int* tmp, unsigned int* cost);
 void divide(int* array, int left, int right, int* tmp, unsigned int* cost);
 
-Heap::Heap():mCost(0)
+HeapSort::HeapSort():mCost(0)
 {
 
 }
 
-Heap::~Heap()
+HeapSort::~HeapSort()
 {
 
 }
 
-inline int Heap::_parent( int i )
+inline int HeapSort::_parent( int i )
 {
 	return i>0 ? (i-1)/2 : 0;
 }
 
-inline int Heap::_left( int i )
+inline int HeapSort::_left( int i )
 {
 	return (i*2 + 1);
 }
 
-inline int Heap::_right( int i )
+inline int HeapSort::_right( int i )
 {
 	return (i*2 + 2);
 }
 
-void Heap::maxHeapify( int* heap, int heapSize, int parent )
+void HeapSort::maxHeapify( int* heap, int heapSize, int parent )
 {
 	int largest;
 	if (_left(parent) < heapSize && heap[_left(parent)] > heap[parent])
@@ -53,7 +53,7 @@ void Heap::maxHeapify( int* heap, int heapSize, int parent )
 }
 
 ///Build a min heap from the bottom
-void Heap::buildMaxHeap( int* array, int arraySize )
+void HeapSort::buildMaxHeap( int* array, int arraySize )
 {
 	for (int i = (arraySize)/2; i >= 0; --i)
 	{
@@ -61,7 +61,7 @@ void Heap::buildMaxHeap( int* array, int arraySize )
 	}
 }
 
-void Heap::maxHeapSort( int* array, int arraySize )
+void HeapSort::maxHeapSort( int* array, int arraySize )
 {
 	buildMaxHeap(array, arraySize);
 

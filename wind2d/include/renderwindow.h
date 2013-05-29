@@ -148,7 +148,20 @@ public:
 	void setDijkstra(){mAlgo = Dijkstra;}
 	void setAStar(){mAlgo = AStar;}
 
-	void execAlgo(){}
+	void execAlgo()
+	{
+		if (mActiveData.srcNode == -1)
+		{
+			MessageBox(mHwnd, L"Start node is not set.", L"Notice", MB_OK);
+			return;
+		}
+		if (mAlgo == Prim)
+		{
+			mGraph.PrimMST(mActiveData.srcNode);
+			InvalidateRect(mHwnd, NULL, FALSE);
+		}
+	}
+
 	void clearGraph()
 	{
 		mActiveData.clearActiveEdge();
