@@ -1,4 +1,5 @@
 #include "datamodel.h"
+#include <limits>
 
 Node::Node( int id, D2D1_POINT_2F& pos )
 {
@@ -76,7 +77,9 @@ void Graph::clear()
 	}
 	mAdjList.clear();
 	mUndirectedEdges.clear();
+	
 	mst.clear();
+	spt.clear();
 }
 
 Node* Graph::queryNodeByPos( D2D1_POINT_2F& pos )
@@ -94,7 +97,7 @@ Node* Graph::queryNodeByPos( D2D1_POINT_2F& pos )
 
 Node* Graph::queryNodeById( int id )
 {
-	if (id < mNodes.size())
+	if (static_cast<unsigned int>(id) < mNodes.size())
 		return mNodes[id];
 	else
 		return NULL;
@@ -123,4 +126,109 @@ unsigned int Graph::numOfUndirectedEdge()
 	for (i = 0; i < mAdjList.size(); ++i)
 		counter += mAdjList[i].size();
 	return counter/2;
+}
+
+void Graph::PrimMST( int startId )
+{
+	mst.clear();
+	mst.assign(numOfNode(), NULL);
+
+	vector<double> keys;
+	keys.assign(numOfNode(), INT_MAX);
+
+	IndexedPriorityQueue<double> iPQ;
+	iPQ.init(&keys);
+	iPQ.buildHeap();
+	iPQ.decreaseKey(startId, 0);
+
+	int curNodeId, adjNodeId;
+	double cost;
+	while(iPQ.getQueueSize() != 0)
+	{
+		curNodeId = iPQ.popMin();
+		for (unsigned int i = 0; i < mAdjList[curNodeId].size(); ++i)
+		{
+			adjNodeId = mAdjList[curNodeId][i]->mDstId;
+			cost = mAdjList[curNodeId][i]->mCost;
+			if (iPQ.isInQueue(adjNodeId) && cost < keys[adjNodeId])
+			{
+				iPQ.decreaseKey(adjNodeId, cost);
+				mst[adjNodeId] = mAdjList[curNodeId][i];
+			}
+		}
+	}
+}
+
+void Graph::DijkSPT( int startId, int endId )
+{
+	spt.clear();
+	spt.assign(numOfNode(), NULL);
+
+	vector<double> keys;
+	keys.assign(numOfNode(), INT_MAX);
+
+	IndexedPriorityQueue<double> iPQ;
+	iPQ.init(&keys);
+	iPQ.buildHeap();
+	iPQ.decreaseKey(startId, 0);
+
+	int curNode, frontierNode;
+	double edgeCost;
+	while(iPQ.getQueueSize() != 0)
+	{
+		curNode = iPQ.popMin();
+		
+		if (curNode == endId)
+			return;
+
+		for (unsigned int i = 0; i < mAdjList[curNode].size(); ++i)
+		{
+			frontierNode = mAdjList[curNode][i]->mDstId;
+			edgeCost = mAdjList[curNode][i]->mCost;
+			//Edge relax
+			if (iPQ.isInQueue(frontierNode) && keys[frontierNode] > keys[curNode] + edgeCost)
+			{
+				iPQ.decreaseKey(frontierNode, keys[curNode] + edgeCost);
+				spt[frontierNode] = mAdjList[curNode][i];
+			}
+		}
+
+	}
+}
+
+void Graph::AStar( int startId, int endId )
+{
+	spt.clear();
+	spt.assign(numOfNode(), NULL);
+
+	vector<double> keys;
+	keys.assign(numOfNode(), INT_MAX);
+
+	IndexedPriorityQueue<double> iPQ;
+	iPQ.init(&keys);
+	iPQ.buildHeap();
+	iPQ.decreaseKey(startId, calEuclideanDistance(startId, endId));
+
+	int curNode, frontierNode;
+	double edgeCost;
+	while(iPQ.getQueueSize() != 0)
+	{
+		curNode = iPQ.popMin();
+
+		if (curNode == endId)
+			return;
+
+		for (unsigned int i = 0; i < mAdjList[curNode].size(); ++i)
+		{
+			frontierNode = mAdjList[curNode][i]->mDstId;
+			edgeCost = mAdjList[curNode][i]->mCost;
+			double heuristic = calEuclideanDistance(frontierNode, endId);
+			//Edge relax
+			if (iPQ.isInQueue(frontierNode) && keys[frontierNode] > keys[curNode] + edgeCost + heuristic)
+			{
+				iPQ.decreaseKey(frontierNode, keys[curNode] + edgeCost + heuristic);
+				spt[frontierNode] = mAdjList[curNode][i];
+			}
+		}
+	}
 }

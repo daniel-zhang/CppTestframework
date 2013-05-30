@@ -17,6 +17,8 @@
 
 #include <windows.h>
 
+/**Base window class
+*/
 template<typename SubClass>
 class WinRoot
 {
@@ -44,9 +46,9 @@ public:
 
 		RegisterClass(&wc);
 
-		//Inside this API, a WM_NCCREATE message is sent to winProc(),
-		//The lParam holds a pointer to CREATESTRUCT where we can find "this".
-		//A hidden fact that the winProc callback is called for some WM_BLAH even
+		//On calling this API, a WM_NCCREATE message is sent to winProc(),
+		//whose lParam holds a pointer to CREATESTRUCT where we can find "this".
+		//A hidden fact that the winProc callback is called by system even
 		//before the message loop. That's why mHwnd is actually assigned within
 		//winProc() rather than here.
 		CreateWindowEx(
@@ -97,7 +99,7 @@ protected:
 	HWND mHwnd;
 };
 
-//A sample win class
+//A sample window class, just to demonstrate a typical usage.
 class SampleClass : public WinRoot<SampleClass>
 {
 public:
@@ -122,7 +124,6 @@ public:
 				FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
 
 				EndPaint(mHwnd, &ps);
-
 			}
 			return 0;
 		}

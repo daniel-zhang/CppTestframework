@@ -2,6 +2,7 @@
 #include <d2d1.h>
 #include <vector>
 #include "ipq.h"
+
 using namespace std;
 
 class Node
@@ -49,44 +50,20 @@ public:
 	unsigned int numOfNode();
 	unsigned int numOfUndirectedEdge();
 
+	//Graph searching algorithms
+	void PrimMST(int startId);
+	void DijkSPT(int startId, int endId );
+	void AStar(int startId, int endId );
+	
+	//Minimal spanning tree and shortest path tree.
+	//They just hold read-only reference to existing edges.
+	vector<const Edge*> mst;
+	vector<const Edge*> spt;
+
 	//A back-door for the renderer. 
 	vector<Edge*> mUndirectedEdges; 
-
-	void PrimMST(int startId)
-	{
-		mst.clear();
-		mst.assign(numOfNode(), NULL);
-
-		vector<double> keys;
-		keys.assign(numOfNode(), 10000);
-		
-		IndexedPriorityQueue<double> iPQ;
-		iPQ.init(&keys);
-		iPQ.buildHeap();
-		iPQ.decreaseKey(startId, 0);
-
-		int curNodeId, adjNodeId;
-		double cost;
-		while(iPQ.getQueueSize() != 0)
-		{
-			curNodeId = iPQ.popMin();
-			for (unsigned int i = 0; i < mAdjList[curNodeId].size(); ++i)
-			{
-				adjNodeId = mAdjList[curNodeId][i]->mDstId;
-				cost = mAdjList[curNodeId][i]->mCost;
-				if (iPQ.isInQueue(adjNodeId) && cost < keys[adjNodeId])
-				{
-					iPQ.decreaseKey(adjNodeId, cost);
-					mst[adjNodeId] = mAdjList[curNodeId][i];
-				}
-			}
-		}
-	}
-
-	vector<Edge*> mst;
+	
 private:	
 	vector<Node*> mNodes;
 	vector<vector<Edge*>> mAdjList;
-
-
 };

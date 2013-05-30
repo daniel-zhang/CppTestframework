@@ -1,9 +1,10 @@
 #include "renderwindow.h"
 #include <WindowsX.h>
 
-/*Helper to make the app DPI aware*/
+/**Helper class to retrieve the desktop DPI settings*/
 class DPIScale
 {
+private:
 	static float scaleX;
 	static float scaleY;
 
@@ -22,33 +23,16 @@ public:
 		return D2D1::Point2F(static_cast<float>(x) / scaleX, static_cast<float>(y) / scaleY);
 	}
 };
-
 float DPIScale::scaleX = 1.0f;
 float DPIScale::scaleY = 1.0f;
 
-/**/
-void RenderWindow::calcLayout()
+LRESULT RenderWindow::onCreate()
 {
-	if (mpRenderTarget != NULL)
-	{
-		D2D1_SIZE_F size = mpRenderTarget->GetSize();
-		const float x = size.width/2;
-		const float y = size.height/2;
-		const float radius = min(x, y);
-		mEllipse = D2D1::Ellipse(D2D1::Point2F(x, y), radius, radius);
-	}
-}
-
-LRESULT RenderWindow::init()
-{
+	//Create D2D factory
 	if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &mpFactory)))
-		return -1;//CreateWindowEx failed.
-	
-	if (FAILED(mpFactory->CreateStrokeStyle(D2D1::StrokeStyleProperties(), NULL, 0, &mpStroke)))
 		return -1;
-	//Get DPI settings
-	DPIScale::Initialize(mpFactory);
-
+	
+	//Create direct write factory
 	if (FAILED(DWriteCreateFactory(
 					DWRITE_FACTORY_TYPE_SHARED, 
 					__uuidof(mpDWriteFactory), 
@@ -56,6 +40,7 @@ LRESULT RenderWindow::init()
 				)))
 		return -1;
 
+	//Create a simple text format
 	if (FAILED( mpDWriteFactory->CreateTextFormat(
 					L"Verdana",
 					NULL,
@@ -67,20 +52,42 @@ LRESULT RenderWindow::init()
 					&mpDWriteTextFormat) 
 				))
 		return -1;
-
+	//Then set the text format as center aligned
 	mpDWriteTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 	mpDWriteTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-	
+
+	//Create an arrow shape(a D2D1::PathGeometry)
+	if (FAILED(mpFactory->CreatePathGeometry(&mpArrowShape)))
+		return -1;
+	ID2D1GeometrySink* pSink = NULL;
+	if (FAILED(mpArrowShape->Open(&pSink)))
+		return -1;
+	pSink->BeginFigure(D2D1::Point2F(0,0.f), D2D1_FIGURE_BEGIN_FILLED);
+	pSink->AddLine(D2D1::Point2F(25.f,10.f));
+	pSink->AddLine(D2D1::Point2F(25.f,-10.f));
+	pSink->AddLine(D2D1::Point2F(0.f,0.f));
+	pSink->EndFigure(D2D1_FIGURE_END_CLOSED);
+	pSink->Close();
+	safeRelease(&pSink);
+
+	//Get DPI settings
+	DPIScale::Initialize(mpFactory);
+
+	//Now let's show
 	ShowWindow( mHwnd, SW_SHOWNORMAL );
 	return 0;
 }
 
-void RenderWindow::clearup()
+void RenderWindow::onDestroy()
 {
+	//Release device dependent D2D resources.
+	discardGraphicsResources();
+
+	//Release device independent D2D resources.
 	safeRelease(&mpFactory);
-	safeRelease(&mpStroke);
 	safeRelease(&mpDWriteFactory);
 	safeRelease(&mpDWriteTextFormat);
+	safeRelease(&mpArrowShape);
 }
 
 HRESULT RenderWindow::createGraphicsResources()
@@ -88,6 +95,7 @@ HRESULT RenderWindow::createGraphicsResources()
 	HRESULT hr = S_OK;
 	if (mpRenderTarget == NULL)
 	{
+		//Create render target
 		RECT rc;
 		GetClientRect(mHwnd, &rc);
 		D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
@@ -98,46 +106,28 @@ HRESULT RenderWindow::createGraphicsResources()
 			&mpRenderTarget
 			);
 
+		//Create a bunch of brushes
 		if (SUCCEEDED(hr))
-		{
-			const D2D1_COLOR_F color = D2D1::ColorF(1.f, 1.f, 0.f);
-			hr = mpRenderTarget->CreateSolidColorBrush(color, &mpBrush);
-		}
-
-		if (SUCCEEDED(hr))
-			calcLayout();
-
-		if (SUCCEEDED(hr))
-		{
 			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DarkSlateGray), &mpGrayBrush);
-		}
 
 		if (SUCCEEDED(hr))
-		{
 			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::CornflowerBlue), &mpBlueBrush);
-		}
 
 		if (SUCCEEDED(hr))
-		{
 			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DarkCyan ), &mpCyanBrush);
-		}
 
 		if (SUCCEEDED(hr))
-		{
 			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White ), &mpWhiteBrush);
-		}
+
 		if (SUCCEEDED(hr))
-		{
 			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black ), &mpBlackBrush);
-		}
+
 		if (SUCCEEDED(hr))
-		{
 			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Blue ), &mpGreenBrush);
-		}
+
 		if (SUCCEEDED(hr))
-		{
 			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red ), &mpRedBrush);
-		}
+
 	}
 	return hr;
 }
@@ -145,7 +135,6 @@ HRESULT RenderWindow::createGraphicsResources()
 void RenderWindow::discardGraphicsResources()
 {
 	safeRelease(&mpRenderTarget);
-	safeRelease(&mpBrush);
 	safeRelease(&mpGrayBrush);
 	safeRelease(&mpBlueBrush);
 	safeRelease(&mpCyanBrush);
@@ -176,25 +165,23 @@ void RenderWindow::onResize(UINT width, UINT height)
 {
 	if (mpRenderTarget != NULL)
 	{
-// 		RECT rc;
-// 		GetClientRect(mHwnd, &rc);
-//		D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
-
 		D2D1_SIZE_U size = D2D1::SizeU(width, height);
 		mpRenderTarget->Resize(size);
-		//calcLayout();
 		InvalidateRect(mHwnd, NULL, FALSE);//Inform the OS to post a WM_PAINT
 	}
 }
 
+//Handle the simple input states.
 void RenderWindow::onLButtonDown(int pixelX, int pixelY, DWORD flags)
 {
+	//Regulate every user-click to a grid's center.
 	D2D1_POINT_2F gridPos = mousePos2GridPos(pixelX, pixelY);
+
 	switch(mEditMode)
 	{
 	case AddNode:
 		{
-			//If the click point is within a valid node, do nothing.
+			//If click point is within a valid node, do nothing.
 			if (mGraph.queryNodeByPos(gridPos) != NULL)
 				return;
 			mGraph.addNode(gridPos);
@@ -206,8 +193,15 @@ void RenderWindow::onLButtonDown(int pixelX, int pixelY, DWORD flags)
 			//If the click point is not within a valid node, do nothing.
 			if (mGraph.queryNodeByPos(gridPos) == NULL)
 				return;
+
+			//Update the active data to record user input.
 			mActiveData.activeEdgeStart.x = gridPos.x;
 			mActiveData.activeEdgeStart.y = gridPos.y;
+
+			mActiveData.activeEdgeEnd.x = gridPos.x;
+			mActiveData.activeEdgeEnd.y = gridPos.y;
+
+			//Inform the renderer that active edge should be rendered on the next draw.
 			mActiveData.isActive = true;
 		}
 		break;
@@ -218,6 +212,7 @@ void RenderWindow::onLButtonDown(int pixelX, int pixelY, DWORD flags)
 			Node* pNode = mGraph.queryNodeByPos(gridPos);
 			if ( pNode == NULL)
 				return;
+			
 			mActiveData.srcNode = pNode->mId;
 		}
 		break;
@@ -228,6 +223,7 @@ void RenderWindow::onLButtonDown(int pixelX, int pixelY, DWORD flags)
 			Node* pNode = mGraph.queryNodeByPos(gridPos);
 			if ( pNode == NULL)
 				return;
+
 			mActiveData.dstNode = pNode->mId;
 		}
 		break;
@@ -240,6 +236,7 @@ void RenderWindow::onLButtonDown(int pixelX, int pixelY, DWORD flags)
 
 void RenderWindow::onLButtonUp( int pixelX, int pixelY, DWORD flags )
 {
+	//LButtonUp message is only captured in "AddEdge" mode.
 	if (mEditMode == AddEdge)
 	{
 		D2D1_POINT_2F gridPos = mousePos2GridPos(pixelX, pixelY);
@@ -284,15 +281,14 @@ LRESULT RenderWindow::handleMsg( UINT uMsg, WPARAM wParam, LPARAM lParam )
 	switch(uMsg)
 	{
 	case WM_CREATE:
-		if (init() == -1)
+		if (onCreate() == -1)
 		{
 			return -1;
 		}
 		break;
 
 	case WM_DESTROY:
-		discardGraphicsResources();
-		clearup();
+		onDestroy();
 		PostQuitMessage(0);
 		return 0;
 
@@ -305,11 +301,9 @@ LRESULT RenderWindow::handleMsg( UINT uMsg, WPARAM wParam, LPARAM lParam )
 		return 0;
 	
 	case WM_SETCURSOR:
-		//Change the cursor if it is in client area.
+		//Change the cursor into a cross if in client area.
 		if (LOWORD(lParam) == HTCLIENT)
-		{
 			SetCursor(LoadCursor(NULL, IDC_CROSS));
-		}
 		break;
 
 	case WM_LBUTTONDOWN:
@@ -328,51 +322,13 @@ LRESULT RenderWindow::handleMsg( UINT uMsg, WPARAM wParam, LPARAM lParam )
 	return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 }
 
-/************************************************************************/
-/*                                                                      */
-/************************************************************************/
 HRESULT RenderWindow::render()
 {
 	mpRenderTarget->BeginDraw();
 
 	drawAll();
-	//drawClock();
 	
 	return mpRenderTarget->EndDraw();
-}
-
-void RenderWindow::drawClockHand( float handLength, float angle, float strokeWidth )
-{
-	const D2D1_COLOR_F colorTemp = mpBrush->GetColor();
-	
-	mpRenderTarget->SetTransform(D2D1::Matrix3x2F::Rotation(angle, mEllipse.point));
-	D2D_POINT_2F endPoint = D2D1::Point2F(mEllipse.point.x, mEllipse.point.y-(mEllipse.radiusY*handLength));
-
-	mpBrush->SetColor(D2D1::ColorF(0.f, 0.f, 0.f));
-	mpRenderTarget->DrawLine(mEllipse.point, endPoint, mpBrush, strokeWidth, mpStroke);
-	mpBrush->SetColor(colorTemp);
-}
-
-void RenderWindow::drawClock()
-{
-	if (mpRenderTarget != NULL)
-	{
-		mpRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::SkyBlue));
-		mpRenderTarget->FillEllipse(mEllipse, mpBrush);
-
-		SYSTEMTIME time;
-		GetLocalTime(&time);
-
-		const float hourAngle = (360.f/12)*(time.wHour) + time.wMinute*.5f;
-		const float minuteAngle = (360.f/60)*(time.wMinute);
-		const float secondAngle = (360.f/60)*(time.wSecond);
-
-		drawClockHand(0.6f, hourAngle, 8);
-		drawClockHand(0.8f, minuteAngle, 6);
-		drawClockHand(0.95f, secondAngle, 2);
-
-		mpRenderTarget->SetTransform( D2D1::Matrix3x2F::Identity() );
-	}
 }
 
 void RenderWindow::drawAll()
@@ -418,6 +374,47 @@ void RenderWindow::drawAll()
 			Node* dst = mGraph.queryNodeById(pEdge->mDstId);
 
 			mpRenderTarget->DrawLine(src->mPosition, dst->mPosition, mpBlueBrush, 5.f );
+		}
+
+		//Draw graph research results.
+		switch(mAlgoDone)
+		{
+		case Prim:
+			for (unsigned int i = 0; i < mGraph.mst.size(); ++i)
+			{
+				//NULL represents node who has no parent node and thus no edge to paint.
+				if (mGraph.mst[i] == NULL)
+					continue;
+				Node* src = mGraph.queryNodeById(mGraph.mst[i]->mSrcId);
+				Node* dst = mGraph.queryNodeById(mGraph.mst[i]->mDstId);
+				
+				drawArrow(src->mPosition, dst->mPosition, mpRedBrush, 5.f);
+			}
+			break;
+
+		case Dijkstra:
+		case AStar:
+			for (unsigned int i = 0; i < mGraph.spt.size(); ++i)
+			{
+				if (mGraph.spt[i] == NULL)
+					continue;
+				Node* src = mGraph.queryNodeById(mGraph.spt[i]->mSrcId);
+				Node* dst = mGraph.queryNodeById(mGraph.spt[i]->mDstId);
+				
+				drawArrow(src->mPosition, dst->mPosition, mpRedBrush, 5.f);
+			}
+			break;
+
+		default:
+			break;
+		}
+		
+		//Draw previously added edges' costs.
+		for (unsigned int i = 0; i < mGraph.mUndirectedEdges.size(); ++i)
+		{
+			Edge* pEdge = mGraph.mUndirectedEdges[i];
+			Node* src = mGraph.queryNodeById(pEdge->mSrcId);
+			Node* dst = mGraph.queryNodeById(pEdge->mDstId);
 
 			WCHAR text[20] = L"";
 			//_snwprintf(text,  ARRAYSIZE(text), L"%.1f", mActiveData.calcDistance(src->mPosition, dst->mPosition));
@@ -426,16 +423,6 @@ void RenderWindow::drawAll()
 				text, ARRAYSIZE(text) - 1, mpDWriteTextFormat, 
 				&(mActiveData.calcTextRegion(src->mPosition, dst->mPosition)),
 				mpBlackBrush);
-		}
-
-		//Draw MST if any
-		for (unsigned int i = 0; i < mGraph.mst.size(); ++i)
-		{
-			if (mGraph.mst[i] == NULL)
-				continue;
-			Node* src = mGraph.queryNodeById(mGraph.mst[i]->mSrcId);
-			Node* dst = mGraph.queryNodeById(mGraph.mst[i]->mDstId);
-			mpRenderTarget->DrawLine(src->mPosition, dst->mPosition, mpRedBrush, 5.f );
 		}
 
 		//Draw nodes
@@ -451,9 +438,9 @@ void RenderWindow::drawAll()
 			//Select brush for different node types
 			ID2D1SolidColorBrush* pBrushSelector;
 			if (i == mActiveData.srcNode)
-				pBrushSelector = mpGreenBrush;
-			else if(i == mActiveData.dstNode)
 				pBrushSelector = mpRedBrush;
+			else if(i == mActiveData.dstNode)
+				pBrushSelector = mpGreenBrush;
 			else
 				pBrushSelector = mpCyanBrush;
 
@@ -481,6 +468,98 @@ D2D1_POINT_2F RenderWindow::mousePos2GridPos( int pixelX, int pixelY )
 	gridPos.x = static_cast<FLOAT>(nx * mGridSize + mGridSize / 2);
 	gridPos.y = static_cast<FLOAT>(ny * mGridSize + mGridSize / 2);
 	return gridPos;
+}
+
+//Draw arrow using D2D transformation matrices.
+void RenderWindow::drawArrow( D2D1_POINT_2F point0, D2D1_POINT_2F point1, ID2D1Brush *brush, FLOAT strokeWidth /*= 1.0f*/ )
+{
+	FLOAT rectHalfLen = static_cast<FLOAT>(mGridSize)/2 - 2;
+	FLOAT angle =atan2(point0.y - point1.y, point0.x - point1.x);
+	//Calculate the length between a grid center and arrow head(contact point).
+	FLOAT len;
+	FLOAT absTan  = tan(angle)>0 ? tan(angle) : -tan(angle);
+	if (  absTan> 1)
+		len = rectHalfLen/sin(angle);
+	else
+		len = rectHalfLen/cos(angle);
+	len = len > 0 ? len : -len;
+
+	D2D1_POINT_2F contactPoint, arrowNeck;		
+	contactPoint.x = point1.x + len*cos(angle);
+	contactPoint.y = point1.y + len*sin(angle);
+	arrowNeck.x = point1.x + (len + 15)*cos(angle);
+	arrowNeck.y = point1.y + (len + 15)*sin(angle);
+
+	mpRenderTarget->DrawLine(point0, arrowNeck, brush, strokeWidth);
+
+	ID2D1TransformedGeometry* pArrow = NULL;
+	HRESULT hr = mpFactory->CreateTransformedGeometry(mpArrowShape,
+		D2D1::Matrix3x2F::Rotation(angle*180.f/3.141592653589793, D2D1::Point2F(0.f, 0.f))
+		*D2D1::Matrix3x2F::Translation(contactPoint.x, contactPoint.y),
+		&pArrow);
+
+	mpRenderTarget->DrawGeometry(pArrow, brush, 1.f);
+	mpRenderTarget->FillGeometry(pArrow, brush);
+	safeRelease(&pArrow);
+}
+
+void RenderWindow::execAlgo()
+{
+	switch(mAlgo)
+	{
+	case Prim:
+		if (mActiveData.srcNode == -1)
+		{
+			MessageBox(mHwnd, L"Start node is not set.", L"Notice", MB_OK);
+			return;
+		}
+		mGraph.PrimMST(mActiveData.srcNode);
+
+		//Inform the renderer which data set should be represented.
+		mAlgoDone = Prim;
+		
+		InvalidateRect(mHwnd, NULL, FALSE);
+		break;
+
+	case Dijkstra:
+		if (mActiveData.srcNode == -1 )
+		{
+			MessageBox(mHwnd, L"Start node is not set.", L"Notice", MB_OK);
+			return;
+		}
+		mGraph.DijkSPT(mActiveData.srcNode, mActiveData.dstNode);
+		mAlgoDone = Dijkstra;
+		InvalidateRect(mHwnd, NULL, FALSE);
+		break;
+
+	case AStar:
+		if (mActiveData.srcNode == -1 )
+		{
+			MessageBox(mHwnd, L"Start node is not set.", L"Notice", MB_OK);
+			return;
+		}
+		mGraph.AStar(mActiveData.srcNode, mActiveData.dstNode);
+		mAlgoDone = AStar;
+		InvalidateRect(mHwnd, NULL, FALSE);
+		break;
+
+	case INVALIDE:
+		break;
+
+	default:
+		break;
+	}
+}
+
+//A little bit messy, but that's it.
+void RenderWindow::clearGraph()
+{
+	mActiveData.clearActiveEdge();
+	mActiveData.isActive = false;
+	mActiveData.srcNode = -1;
+	mActiveData.dstNode = -1;
+	mGraph.clear();
+	InvalidateRect(mHwnd, NULL, FALSE);
 }
 
 

@@ -22,6 +22,8 @@ void safeRelease(T** ppT)
 	}
 }
 
+/**A miscellaneous helper that do the messy stuff.
+*/
 class ActiveData
 {
 public:
@@ -84,15 +86,15 @@ public:
 class RenderWindow : public WinRoot<RenderWindow>
 {
 private:
-	//Device Independent Resources
+	//D2D: Device Independent Resources
 	ID2D1Factory* mpFactory;
-	ID2D1StrokeStyle* mpStroke;
 	IDWriteFactory* mpDWriteFactory;
 	IDWriteTextFormat* mpDWriteTextFormat;	
+	ID2D1PathGeometry* mpArrowShape;
 	
-	//Device Dependent Resources
+	//D2D: Device Dependent Resources.
+	//If render target becomes invalid, these resources need to be re-created.
 	ID2D1HwndRenderTarget* mpRenderTarget;
-	ID2D1SolidColorBrush* mpBrush;
 	ID2D1SolidColorBrush* mpGrayBrush;
 	ID2D1SolidColorBrush* mpBlueBrush;
 	ID2D1SolidColorBrush* mpCyanBrush;
@@ -101,44 +103,42 @@ private:
 	ID2D1SolidColorBrush* mpRedBrush;
 	ID2D1SolidColorBrush* mpGreenBrush;
 
-
-	//Resource management
-	void calcLayout();
-	LRESULT init();
-	void clearup();
+	//Manage device dependent resources.
 	HRESULT createGraphicsResources();
 	void discardGraphicsResources();
 
+private:
+	//Miscellaneous data
+	ActiveData mActiveData;
+	UINT mGridSize;
+	Graph mGraph;
+	enum eGraphEditMode{AddNode, AddEdge, SetSrc, SetDst} mEditMode;
+	enum eAlgoOption{INVALIDE, Prim, Dijkstra, AStar} mAlgo, mAlgoDone;
+
+	//Regulate mouse click position to the center of a grid.
+	D2D1_POINT_2F mousePos2GridPos(int pixelX, int pixelY);
+	
+	//Let's render!
+	HRESULT render();
+	void drawAll();
+	//Draw a customized arrow-line.
+	void drawArrow( D2D1_POINT_2F point0, D2D1_POINT_2F point1, ID2D1Brush *brush, FLOAT strokeWidth = 1.0f);
+
 	//Msg handlers
+	LRESULT onCreate();
+	void onDestroy();
 	void onPaint();
 	void onResize(UINT width, UINT height);
 	void onLButtonDown(int pixelX, int pixelY, DWORD flags);
 	void onLButtonUp( int pixelX, int pixelY, DWORD flags );
 	void onMouseMove(int pixelX, int pixelY, DWORD flags);
 
-private:
-	//Data and operations, should be re-factored into a standalone class
-	D2D1_ELLIPSE mEllipse;//Deprecated
-	
-	ActiveData mActiveData;
-	UINT mGridSize;
-	D2D1_POINT_2F mousePos2GridPos(int pixelX, int pixelY);
-
-	HRESULT render();
-	void drawAll();
-	
-	//Deprecated
-	void drawClockHand(float handLength, float angle, float strokWidth);
-	void drawClock();
-
-	enum eGraphEditMode{AddNode, AddEdge, SetSrc, SetDst} mEditMode;
-	enum eAlgoOption{Prim, Dijkstra, AStar} mAlgo;
-
-	Graph mGraph;
 public:
-	RenderWindow():mpFactory(NULL),mpRenderTarget(NULL),mpBrush(NULL),mGridSize(40), mEditMode(AddNode){}
+	RenderWindow():
+		mpFactory(NULL),mpRenderTarget(NULL),mGridSize(40), 
+		mEditMode(AddNode), mAlgo(INVALIDE), mAlgoDone(INVALIDE){}
 	
-	//Config interface
+	//Control interface
 	void setAddNodeMode(){mEditMode = AddNode;}
 	void setAddEdgeMode(){mEditMode = AddEdge;}
 	void setSrcNode(){mEditMode = SetSrc;}
@@ -148,36 +148,12 @@ public:
 	void setDijkstra(){mAlgo = Dijkstra;}
 	void setAStar(){mAlgo = AStar;}
 
-	void execAlgo()
-	{
-		if (mActiveData.srcNode == -1)
-		{
-			MessageBox(mHwnd, L"Start node is not set.", L"Notice", MB_OK);
-			return;
-		}
-		if (mAlgo == Prim)
-		{
-			mGraph.PrimMST(mActiveData.srcNode);
-			InvalidateRect(mHwnd, NULL, FALSE);
-		}
-	}
-
-	void clearGraph()
-	{
-		mActiveData.clearActiveEdge();
-		mActiveData.isActive = false;
-		mActiveData.srcNode = -1;
-		mActiveData.dstNode = -1;
-		mGraph.clear();
-		InvalidateRect(mHwnd, NULL, FALSE);
-	}
+	void execAlgo();
+	void clearGraph();
 
 	//Framework interface
 	virtual LRESULT  handleMsg( UINT uMsg, WPARAM wParam, LPARAM lParam);
-	virtual PCWSTR  getClassName() const
-	{
-		return L"D2d Sample";
-	}
+	virtual PCWSTR  getClassName() const{return L"GraphDemo";}
 };
 
 #endif
