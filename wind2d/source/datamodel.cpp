@@ -224,11 +224,16 @@ void Graph::AStar( int startId, int endId )
 			edgeCost = mAdjList[curNode][i]->mCost;
 			double heuristic = calEuclideanDistance(frontierNode, endId);
 			//Edge relax
-			if (iPQ.isInQueue(frontierNode) && keys[frontierNode] > keys[curNode] + edgeCost + heuristic)
+			if (iPQ.isInQueue(frontierNode))
 			{
-				iPQ.decreaseKey(frontierNode, keys[curNode] + edgeCost + heuristic);
-				spt[frontierNode] = mAdjList[curNode][i];
-			}
+				double costToCurNode = keys[curNode] - calEuclideanDistance(curNode, endId);
+				if (keys[frontierNode] > costToCurNode + edgeCost + heuristic)
+				{
+					iPQ.decreaseKey(frontierNode, costToCurNode + edgeCost + heuristic);
+					spt[frontierNode] = mAdjList[curNode][i];
+				}
+			}	
+			
 		}
 	}
 }

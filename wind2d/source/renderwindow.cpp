@@ -112,7 +112,7 @@ HRESULT RenderWindow::createGraphicsResources()
 			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DarkSlateGray), &mpGrayBrush);
 
 		if (SUCCEEDED(hr))
-			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::CornflowerBlue), &mpBlueBrush);
+			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::CornflowerBlue), &mpCornFlowerBlueBrush);
 
 		if (SUCCEEDED(hr))
 			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DarkCyan ), &mpCyanBrush);
@@ -124,11 +124,13 @@ HRESULT RenderWindow::createGraphicsResources()
 			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black ), &mpBlackBrush);
 
 		if (SUCCEEDED(hr))
-			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Blue ), &mpGreenBrush);
+			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Blue ), &mpBlueBrush);
 
 		if (SUCCEEDED(hr))
 			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red ), &mpRedBrush);
 
+		if (SUCCEEDED(hr))
+			hr = mpRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Green ), &mpGreenBrush);
 	}
 	return hr;
 }
@@ -137,12 +139,13 @@ void RenderWindow::discardGraphicsResources()
 {
 	safeRelease(&mpRenderTarget);
 	safeRelease(&mpGrayBrush);
-	safeRelease(&mpBlueBrush);
+	safeRelease(&mpCornFlowerBlueBrush);
 	safeRelease(&mpCyanBrush);
 	safeRelease(&mpWhiteBrush);
 	safeRelease(&mpBlackBrush);
-	safeRelease(&mpGreenBrush);
+	safeRelease(&mpBlueBrush);
 	safeRelease(&mpRedBrush);
+	safeRelease(&mpGreenBrush);
 }
 
 void RenderWindow::onPaint()
@@ -358,7 +361,7 @@ void RenderWindow::drawAll()
 		//Draw active edge if any.
 		if (mActiveData.isActive && mActiveData.calcDistance() > 1.f)
 		{
-			mpRenderTarget->DrawLine(mActiveData.activeEdgeStart, mActiveData.activeEdgeEnd, mpBlueBrush, 5.f );
+			mpRenderTarget->DrawLine(mActiveData.activeEdgeStart, mActiveData.activeEdgeEnd, mpCornFlowerBlueBrush, 5.f );
 
 			WCHAR text[20] = L"";
 			_snwprintf(text,  ARRAYSIZE(text), L"%.1f", mActiveData.calcDistance());
@@ -372,7 +375,7 @@ void RenderWindow::drawAll()
 			Node* src = mGraph.queryNodeById(pEdge->mSrcId);
 			Node* dst = mGraph.queryNodeById(pEdge->mDstId);
 
-			mpRenderTarget->DrawLine(src->mPosition, dst->mPosition, mpBlueBrush, 5.f );
+			mpRenderTarget->DrawLine(src->mPosition, dst->mPosition, mpCornFlowerBlueBrush, 5.f );
 		}
 
 		//Draw graph research results.
@@ -439,7 +442,7 @@ void RenderWindow::drawAll()
 			if (i == mActiveData.srcNode)
 				pBrushSelector = mpRedBrush;
 			else if(i == mActiveData.dstNode)
-				pBrushSelector = mpGreenBrush;
+				pBrushSelector = mpBlueBrush;
 			else
 				pBrushSelector = mpCyanBrush;
 

@@ -96,11 +96,12 @@ private:
 	//If render target becomes invalid, these resources need to be re-created.
 	ID2D1HwndRenderTarget* mpRenderTarget;
 	ID2D1SolidColorBrush* mpGrayBrush;
-	ID2D1SolidColorBrush* mpBlueBrush;
+	ID2D1SolidColorBrush* mpCornFlowerBlueBrush;
 	ID2D1SolidColorBrush* mpCyanBrush;
 	ID2D1SolidColorBrush* mpWhiteBrush;
 	ID2D1SolidColorBrush* mpBlackBrush;
 	ID2D1SolidColorBrush* mpRedBrush;
+	ID2D1SolidColorBrush* mpBlueBrush;
 	ID2D1SolidColorBrush* mpGreenBrush;
 
 	//Manage device dependent resources.
