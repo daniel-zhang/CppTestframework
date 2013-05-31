@@ -1,6 +1,7 @@
 CppTestframework
 ================
-A mini test framework to play with the hard(nasty?) stuff in `__cplusplus`.
+A mini test framework to play with hard(nasty?) stuff using `__cplusplus`.
+Now a GUI demo is included for graph search algorithms.
 
 Here's my brief plan:
 
@@ -26,6 +27,7 @@ Here's my brief plan:
 + Extend Lua using C++
 + Extend C++ using Lua
 + (Optional):wxLua for wxWidget
++ (Optional):Script engine prototype using LuaBind
 
 ###Multi Threading
 + Look into boost and Ogre and Havok for inspiration
@@ -34,9 +36,8 @@ Here's my brief plan:
 ###Sort, Search, and Container
 A summary of my preparations for recent interviews
 + Quick/Merge/Heap/Select/Bubble sorting, with profilers to give an intuitive understanding
-+ Binary Search vs Hash
-+ Implement a container from the scratch(Data structures, sorting, memory management, object management)
-
++ Graph search algorithms
++ Implement a GUI demo for common graph search algorithms (Prim, Dijkstra, and A*)
 
 
 

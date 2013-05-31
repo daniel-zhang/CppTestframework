@@ -62,9 +62,10 @@ LRESULT RenderWindow::onCreate()
 	ID2D1GeometrySink* pSink = NULL;
 	if (FAILED(mpArrowShape->Open(&pSink)))
 		return -1;
-	pSink->BeginFigure(D2D1::Point2F(0,0.f), D2D1_FIGURE_BEGIN_FILLED);
-	pSink->AddLine(D2D1::Point2F(25.f,10.f));
-	pSink->AddLine(D2D1::Point2F(25.f,-10.f));
+	pSink->BeginFigure(D2D1::Point2F(0,0), D2D1_FIGURE_BEGIN_FILLED);
+	pSink->AddLine(D2D1::Point2F(20.f,10.f));
+	pSink->AddLine(D2D1::Point2F(15.f,0.f));
+	pSink->AddLine(D2D1::Point2F(20.f,-10.f));
 	pSink->AddLine(D2D1::Point2F(0.f,0.f));
 	pSink->EndFigure(D2D1_FIGURE_END_CLOSED);
 	pSink->Close();
@@ -244,18 +245,16 @@ void RenderWindow::onLButtonUp( int pixelX, int pixelY, DWORD flags )
 		Node* end = mGraph.queryNodeByPos(gridPos);
 		Node* start = mGraph.queryNodeByPos(mActiveData.activeEdgeStart);
 
-		//If the end point is not within a valid node, or if the end point is the start point,
-		//then clear the active edge and repaint the scene.
-		if ( end == NULL || end == start)
+		if (end != NULL && start != NULL && end != start)
 		{
+			mGraph.addUndirectedEdge(start->mId, end->mId);
+
 			mActiveData.isActive = false;
 			mActiveData.clearActiveEdge();
 			InvalidateRect(mHwnd, NULL, FALSE);
 		}
-		else if (end != NULL)
+		else
 		{
-			mGraph.addUndirectedEdge(start->mId, end->mId);
-
 			mActiveData.isActive = false;
 			mActiveData.clearActiveEdge();
 			InvalidateRect(mHwnd, NULL, FALSE);
